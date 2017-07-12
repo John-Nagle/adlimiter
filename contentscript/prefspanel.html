@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>SearchRater Preferences</title>
+<style type="text/css">
+<!--
+.rightbutton {
+	float: right;
+}
+.leftbutton {
+	float: left;
+}
+.labeltext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+}
+body {
+	background-attachment: fixed;
+	background-image: url(sitetruthiconlarge.png);
+	background-repeat: no-repeat;
+	background-position: center center;
+}
+.menus {
+	border: thin solid #000000;
+}
+.labeltextsmall {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 8pt;
+}
+-->
+</style>
+</head>
+<body>
+<h1 align="center" class="labeltext">SiteTruth Ad Limiter Preferences</h1>
+<form id="prefsform" name="prefsform" method="post" action="">
+  
+  
+  <span class="labeltext"><strong>
+  <label>Search ad blocking </label>
+  </strong></span><br/>
+  <select name="adpref" id="adpref" class="menus"> 
+	<option value="0">Block all search ads.</option>
+	<option value="1" selected="selected">Allow 1 ad.</option>
+	<option value="2">Allow 2 ads.</option>
+	<option value="3">Allow 3 ads.</option>
+	<option value="4">Allow 4 ads.</option>
+	<option value="5">Allow 5 ads.</option>
+	<option value="10">Allow 10 ads.</option>
+	<option value="99999">Allow all ads.</option>
+	<option value="-1">Off.</option>
+    <!--
+    <option value="2">Move low-ranking ads down.</option>
+    <option value="3">Hide low-ranking ads.</option>
+    <option value="9">Hide all search ads.</option>
+    -->
+  </select>
+  <br />  <br />
+  <label><span class="labeltext"><strong>Search result rating</strong></span></label>
+
+
+    <br />
+  <select name="searchpref" id="searchpref" class="menus"> 
+    <option value="1" >Show rating icons.</option>
+	<option value="-1">Off.</option>
+    <!--
+	<option value="2" selected="selected">Sort by rating.</option>
+    -->
+  </select>
+  <br />
+  <br />
+  <input type="checkbox" name="outline" id="outlinepref" value="outline" />
+  <span class="labeltextsmall">
+  <label>Outline results (debug).</label>
+  </span>
+  <input type="checkbox" name="verbose" id="verbosepref" value="verbose" />
+  <span class="labeltextsmall"><label>Log to error console (debug)</label>
+  </span>
+  <br />
+  <br />
+  <div>
+    <div class="leftbutton">
+      <input name="reset" type="reset" id="reset" value="Reset to defaults" />
+    </div>
+    <div class="rightbutton">
+      <input name="cancel" type="button" id="cancel" value="Cancel" />
+      <input name="update" type="button" id="update" value="Update" />
+    </div>
+  </div>
+</form>
+</body>
+</html>
