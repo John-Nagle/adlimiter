@@ -1,10 +1,10 @@
 {
 
   "manifest_version": 2,
-  "name": "Extensionpractice",
-  "version": "1.0",
+  "name": "AdLimiter",
+  "version": "3.0.0",
 
-  "description": "Adds a red border to all webpages matching mozilla.org.",
+  "description": "Reduces the number of ads on search result pages.",
 
   "icons": {
     "48": "icons/border-48.png"
@@ -12,8 +12,14 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.mozilla.org/*"],
-      "js": ["borderify.js"]
+      "matches": [
+      "*://*.bing.com/",
+      "*://*.duckduckgo.com/"
+      "*://*.iseek.com/",
+      "*://*.google.com/",
+      "*://*.yandex.com/",
+      "*://*.search.yahoo.com/"],
+      "js": ["contentscript/main.js"]
     }
   ],
   "applications": {
