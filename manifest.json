@@ -1,5 +1,4 @@
 {
-
   "manifest_version": 2,
   "name": "AdLimiter",
   "version": "3.0.0",
@@ -9,17 +8,34 @@
   "icons": {
     "48": "icons/border-48.png"
   },
+  
+  "permissions": [
+    "*://sitetruth.com/*",
+    "webRequest",
+    "storage"
+  ],
 
   "content_scripts": [
     {
       "matches": [
-      "*://*.bing.com/",
-      "*://*.duckduckgo.com/"
-      "*://*.iseek.com/",
-      "*://*.google.com/",
-      "*://*.yandex.com/",
-      "*://*.search.yahoo.com/"],
-      "js": ["contentscript/main.js"]
+        "*://*.bing.com/*",
+        "*://*.duckduckgo.com/*",
+        "*://*.iseek.com/*",
+        "*://*.google.com/*",
+        "*://*.yandex.com/*",
+        "*://*.search.yahoo.com/*"],
+      "js": ["contentscript/main.js",
+            "contentscript/sitetruthconfig.js", 
+            "contentscript/urlutillib.js",
+            "contentscript/urlparserlib.js",
+            "contentscript/urlutillib.js",
+            "contentscript/specialdomains.js",
+            "contentscript/searchrating.js",
+            "contentscript/sitetruthclient.js",
+            "contentscript/resultlink.js", 
+            "contentscript/domdump.js",                                       
+            "contentscript/balloonmgr.js",
+            "contentscript/companyballoon.js"]          
     }
   ],
   "applications": {

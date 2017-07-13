@@ -9,7 +9,9 @@
 //  Imports into the content script
 //
 "use strict";                                           // strict mode
-const mratingquery = require('ratingquery');            // SiteTruth rating query module
+const TESTITEM = "abc";                                 // ***TEMP***
+
+////var mratingquery = require('ratingquery');              // SiteTruth rating query module
 
 //	Modules to load into the content script side. 
 const clientmodules = ["sitetruthconfig.js", "urlutillib.js", "urlparserlib.js", "urlutillib.js", // utilities
@@ -47,5 +49,7 @@ const ksearchengines = [
     ];
     
 //  Enable site rating
+console.log("Ad Limiter load start.");  // ***TEMP***
+////alert("AdLimiter fired."); // ***TEMP***
 ////***MORE***
 ////mratingquery.enablesiterating(ksearchengines, clientmodules, null); 
