@@ -24,8 +24,7 @@
         "*://*.google.com/*",
         "*://*.yandex.com/*",
         "*://*.search.yahoo.com/*"],
-      "js": ["contentscript/main.js",
-            "contentscript/sitetruthconfig.js", 
+      "js": ["contentscript/sitetruthconfig.js", 
             "contentscript/urlutillib.js",
             "contentscript/urlparserlib.js",
             "contentscript/urlutillib.js",
@@ -35,7 +34,8 @@
             "contentscript/resultlink.js", 
             "contentscript/domdump.js",                                       
             "contentscript/balloonmgr.js",
-            "contentscript/companyballoon.js"]          
+            "contentscript/companyballoon.js",
+            "contentscript/main.js"]          
     }
   ],
   "applications": {
