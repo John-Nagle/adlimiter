@@ -20,7 +20,6 @@
 var prefs = null;                                           // no prefs yet
 var datadir = null;                                         // data directory of the add-on
 var instanceid = Math.floor(Math.random()*1000000000);      // generate random ID for content script instance - Mozilla BUG 693345 check
-var verbose = false;                                        // not verbose mode
 //
 //  Workarounds
 //
@@ -89,10 +88,12 @@ ProxyID.prototype.delitem = function(id)
 //  startcontentscript -- starts the content script
 //
 function startcontentscript()
-{   var msg = self.options;                                             // get options from PageMod
-    prefs = msg.prefs;                                                  // extract prefs
-    datadir = msg.datadir;                                              // data directory of the add-on
-    verbose = prefs.verbosepref;                                        // set verbose flag
+{   ////var msg = self.options;                                             // get options from PageMod
+    prefs = kdefaultprefs;                                              // ***TEMP*** use canned prefs
+    ////prefs = msg.prefs;                                                  // extract prefs
+    ////datadir = msg.datadir;                                              // data directory of the add-on
+    ////verbose = prefs.verbosepref;                                        // set verbose flag
+    prefs.verbosepref = true;                                                     // ***TEMP***
     startratings(document);                                             // start the rating process
 }
 //

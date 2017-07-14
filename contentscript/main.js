@@ -10,15 +10,7 @@
 //
 "use strict";                                           // strict mode
 const TESTITEM = "abc";                                 // ***TEMP***
-
-////var mratingquery = require('ratingquery');              // SiteTruth rating query module
-
-//	Modules to load into the content script side. 
-const clientmodules = ["sitetruthconfig.js", "urlutillib.js", "urlparserlib.js", "urlutillib.js", // utilities
-    "specialdomains.js", "searchrating.js", "sitetruthclient.js", "resultlink.js",  // rating
-    "domdump.js",                                       // debug print
-    "balloonmgr.js", "companyballoon.js"];              // balloon support
-    
+   
 //
 //  Configuration
 //
@@ -48,8 +40,10 @@ const ksearchengines = [
     /^(https:\/\/|http:\/\/|)(www\.|)duckduckgo\.com\/\?q\=.*/
     ];
     
+    
 //  Enable site rating
 console.log("Ad Limiter load start.");  // ***TEMP***
 ////alert("AdLimiter fired."); // ***TEMP***
 ////***MORE***
 ////mratingquery.enablesiterating(ksearchengines, clientmodules, null); 
+startcontentscript();                                               // ***TEMP*** need to test URL against ksearchengines list
