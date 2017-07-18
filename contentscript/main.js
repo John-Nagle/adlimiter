@@ -43,7 +43,8 @@ const ksearchengines = [
     
 //  Enable site rating
 console.log("Ad Limiter load start.");  // ***TEMP***
+
 ////alert("AdLimiter fired."); // ***TEMP***
-////***MORE***
+////***MORE*** check URL aginst ksearchengines
 ////mratingquery.enablesiterating(ksearchengines, clientmodules, null); 
 startcontentscript();                                               // ***TEMP*** need to test URL against ksearchengines list

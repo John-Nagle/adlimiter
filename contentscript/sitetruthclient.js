@@ -113,7 +113,7 @@ function startcontentscript()
 //
 //    Use this generic version in all Javascript clients.
 //
-var proxyids = new ProxyID();                                           // storage for proxies for items sent to server
+////var proxyids = new ProxyID();                                           // storage for proxies for items sent to server
 
 //
 //  querySiteTruthCache  --  query cache only.
@@ -122,21 +122,22 @@ var proxyids = new ProxyID();                                           // stora
 //
 function querySiteTruthCache(rateitems, ratedcallback)
 {
-    var domains = Object.keys(rateitems);                               // array of domains of interest   
-    var id = proxyids.getid({rateitems: rateitems, ratedcallback: ratedcallback});  // we'll need this at the callback
-    var query = { id: id, domains: domains};                            // parameters to serialize
-    self.port.emit("ratecachereq", query);                              // send to server in JSON format
+    var domains = Object.keys(rateitems);                               // array of domains of interest  
+    cachesearch(domains, ratedcallback);                                // do the search and get called back 
+    ////var id = proxyids.getid({rateitems: rateitems, ratedcallback: ratedcallback});  // we'll need this at the callback
+    ////var query = { id: id, domains: domains};                            // parameters to serialize
+    ////self.port.emit("ratecachereq", query);                              // send to server in JSON format
 }
 //
 //  querySiteTruthCacheReply  --  reply from cache query
 //
-function querySiteTruthCacheReply(replymsg)
-{
-    var proxy = proxyids.getitem(replymsg.id);                          // get our local proxy object
-    proxyids.delitem(replymsg.id);                                      // done with it, one send, one receive
-    if (prefs.verbosepref) { console.log("querySiteTruthCacheReply: " + JSON.stringify(replymsg)); }           // debug 
-    proxy.ratedcallback(replymsg.reply);                                // callback with reply
-}
+////function querySiteTruthCacheReply(replymsg)
+////{
+////    var proxy = proxyids.getitem(replymsg.id);                          // get our local proxy object
+////    proxyids.delitem(replymsg.id);                                      // done with it, one send, one receive
+////    if (prefs.verbosepref) { console.log("querySiteTruthCacheReply: " + JSON.stringify(replymsg)); }           // debug 
+////    proxy.ratedcallback(replymsg.reply);                                // callback with reply
+////}
 //
 //  querySiteTruthSserver --  query rating server and cache.
 //
@@ -144,6 +145,7 @@ function querySiteTruthCacheReply(replymsg)
 //  ratings come in from the server.
 //
 //  Message: "ratereq" => "ratereply"
+//  ***NEEDS WORK FOR WEBEXTENSIONS***
 //
 function querySiteTruthServer(rateitems, ratedcallback, extraargs)      // external call, no retry count
 {   querySiteTruthServerTry(rateitems, ratedcallback, extraargs, kmaxretries) } // call with retry count
@@ -207,5 +209,5 @@ function querySiteTruthServerReply(replymsg)
     }
 }
     
-self.port.on("ratereply", querySiteTruthServerReply);                   // set up reply connection
-self.port.on("ratecachereply", querySiteTruthCacheReply);               // set up reply connection
+////self.port.on("ratereply", querySiteTruthServerReply);                   // set up reply connection
+////self.port.on("ratecachereply", querySiteTruthCacheReply);               // set up reply connection

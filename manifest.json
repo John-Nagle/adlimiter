@@ -35,6 +35,7 @@
             "contentscript/domdump.js",                                       
             "contentscript/balloonmgr.js",
             "contentscript/companyballoon.js",
+            "contentscript/sitetruthcache.js",
             "contentscript/main.js"]          
     }
   ],
