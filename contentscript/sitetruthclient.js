@@ -1,24 +1,19 @@
 //
 //  sitetruthclient.js  --  content script side interface to add on code for Mozilla page mod API
 //
-//  Browser-dependent - Mozilla
+//  WebExtensions version
 //
 //  John Nagle
 //  SiteTruth
-//  October, 2011
+//  October, 2017
 //
-//  This handles communication between the content script code running in the page's Javascript
-//  environment and the privileged add-on code running in a separate container.
-//
-//  Most of this add-on uses code that also works with Greasemonkey.  This file contains the
-//  content-script side code that's not Greasemonkey-compatible. 
 //
 //
 //  Globals
 //
 "use strict";                                               // strict mode
 var prefs = null;                                           // no prefs yet
-var datadir = null;                                         // data directory of the add-on
+var datadir = stimagebase;                                  // image directory of the add-on
 var instanceid = Math.floor(Math.random()*1000000000);      // generate random ID for content script instance - Mozilla BUG 693345 check
 //
 //  Workarounds
@@ -113,31 +108,17 @@ function startcontentscript()
 //
 //    Use this generic version in all Javascript clients.
 //
-////var proxyids = new ProxyID();                                           // storage for proxies for items sent to server
 
 //
 //  querySiteTruthCache  --  query cache only.
 //
-//  Message "ratecachereq" => "ratecachereply"
+//  Done within the content script, using a promise and callback.
 //
 function querySiteTruthCache(rateitems, ratedcallback)
 {
     var domains = Object.keys(rateitems);                               // array of domains of interest  
     cachesearch(domains, ratedcallback);                                // do the search and get called back 
-    ////var id = proxyids.getid({rateitems: rateitems, ratedcallback: ratedcallback});  // we'll need this at the callback
-    ////var query = { id: id, domains: domains};                            // parameters to serialize
-    ////self.port.emit("ratecachereq", query);                              // send to server in JSON format
 }
-//
-//  querySiteTruthCacheReply  --  reply from cache query
-//
-////function querySiteTruthCacheReply(replymsg)
-////{
-////    var proxy = proxyids.getitem(replymsg.id);                          // get our local proxy object
-////    proxyids.delitem(replymsg.id);                                      // done with it, one send, one receive
-////    if (prefs.verbosepref) { console.log("querySiteTruthCacheReply: " + JSON.stringify(replymsg)); }           // debug 
-////    proxy.ratedcallback(replymsg.reply);                                // callback with reply
-////}
 //
 //  querySiteTruthSserver --  query rating server and cache.
 //

@@ -14,6 +14,8 @@
     "webRequest",
     "storage"
   ],
+  
+  "web_accessible_resources": ["images/*.png", "images/*.gif", "images/*.png", "images/*.svg"],
 
   "content_scripts": [
     {
