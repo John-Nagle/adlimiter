@@ -81,15 +81,16 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
     var req = new XMLHttpRequest();                                     // to "sitetruth.com"
     function reqListener () {                                           // ***TEMP**
         console.log("XMLHttp Response: " + this.responseText);
+        var replyarray = JSON.parse(this.responseText);                 // parse JSON into an array
+        siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft); // handle reply
     }
-    ///req.addEventListener("load", reqListener);
-    ////req.onload = reqListener;
     req.addEventListener("load", reqListener);
     req.open("GET", queryurl);
-    req.send();
+    req.send();                                                         // query Sitetruth server.
+    //  ***NEED ERROR AND TIMEOUT HANDLING***
 };
 //
-//  querySiteTruthServerReply --  Communication from add-on code.
+//  siteTruthServerReply --  Communication from add-on code.
 //
 //  Each reply is the rating for one domain. Reply format is JSON of
 //  {id: params.id, [{domain: domain, rating: "Q", ratinginfo: "", err: ""}]}
@@ -97,20 +98,16 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
 //  For each reply, we must call 
 //   callbackfn(elt, domain, rating, ratinginfo)
 //
-function querySiteTruthServerReply(replymsg)
-{              
-    var proxy = proxyids.getitem(replymsg.id);                          // get our local proxy object
-    var replyarray = replymsg.reply;                                    // all the reply items
+function siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft)
+{
     var rerateitems = {}                                                // domains needing further work
     ////prefs.verbosepref = true    // ***TEMP***
-    if (prefs.verbosepref) { console.log("querySiteTruthServerReply: " + JSON.stringify(replymsg)); }           // debug  
-    if (replymsg.done)                                                  // if last use of proxy object
-    {   proxyids.delitem(replymsg.id);  }                               // delete ref to it to avoid memory leak
+    if (prefs.verbosepref) { console.log("querySiteTruthServerReply: " + JSON.stringify(replyarray)); }           // debug  
     for (var i=0; i < replyarray.length; i++)                           // for all items in reply
     {   var reply = replyarray[i];                                      // one item in reply
-        var elts = proxy.rateitems[reply.domain];                       // get elt 
+        var elts = rateitems[reply.domain];                             // get elt 
         if (reply.status == "202")                                      // if must try again
-        {   if (proxy.retriesleft > 0)                                  // if we can retry
+        {   if (retriesleft > 0)                                        // if we can retry
             {   rerateitems[reply.domain] = elts;                       // make new to-do list
                 continue;                                               // don't need to touch visible icon
                 ////reply.rating = 'W';                                     // In-progress symbol
@@ -121,7 +118,7 @@ function querySiteTruthServerReply(replymsg)
                 reply.ratinginfo = 'timeout';                           // status is timeout
             }
         } 
-        proxy.ratedcallback(elts, reply.domain, reply.rating, reply);  // this will place rating icons in DOM
+        ratedcallback(elts, reply.domain, reply.rating, reply);  // this will place rating icons in DOM
     }
     //  Handle domains which need to be tried again.  We do this on in the content script
     //  so that if the page is closed, no more requests are made of the SiteTruth server.
@@ -130,7 +127,7 @@ function querySiteTruthServerReply(replymsg)
         //    Retry any ratings in 202 status after a 5 second delay.
         //    Create a closure for the timer callback
         window.setTimeout(function() 
-            {     querySiteTruthServerTry(rerateitems, proxy.ratedcallback, proxy.extraargs, proxy.retriesleft-1); },
+            {     querySiteTruthServerTry(rerateitems, ratedcallback, extraargs, retriesleft-1); },
                 kretrysecs*1000);
     }
 }
