@@ -14,70 +14,6 @@
 "use strict";                                               // strict mode
 var prefs = null;                                           // no prefs yet
 var datadir = stimagebase;                                  // image directory of the add-on
-var instanceid = Math.floor(Math.random()*1000000000);      // generate random ID for content script instance - Mozilla BUG 693345 check
-//
-//  Workarounds
-//
-//
-//  checkurlchange -- check for change in document URL
-//
-//  Workaround for Mozilla bug 693345
-//
-var docurl = document.URL;                                      // URL of document being worked on
-
-function checkurlchange()
-{   var pdocumenturl = new Poly9.URLParser(document.URL);       // break apart URL
-    var pdocurl = new Poly9.URLParser(docurl);                  // break apart URL
-    if (pdocurl.getHost() != pdocumenturl.getHost())            // if document URL changed, bug
-    {   console.error("ERROR: Mozilla BUG 693345: URL changed from " + docurl + " to " + document.URL);
-        return(true);                                           // trouble
-    }
-    return(false);                                              // normal
-}
-//
-//  proxyid  -- generate a proxy ID for serialization.   
-//
-//  Proxied items are not released until the proxyid object is released.
-//  This could create a memory-growth problem for long-running pages.  
-//
-function ProxyID()
-{
-    this.proxyidseq = 0;                                    // serial number for unique ID
-    this.idtoitem = {};                                     // id => item dictionary
-};
-//
-//  getid  --  get ID for item
-//
-//  Adds the itemt to the items of the object.
-//
-ProxyID.prototype.getid = function(item) 
-{   this.proxyidseq++;                                      // serialize
-    this.idtoitem[this.proxyidseq] = item;                  // save this item
-    return(this.proxyidseq);                                // return serial
-};
-//
-//  getitem -- get item from ID.
-//
-//  Does not consume item.
-//
-ProxyID.prototype.getitem = function(id) 
-{   var item = this.idtoitem[id];                           // get item, which should be present
-    if (item === undefined || item === null)                // should always find
-    {   console.error("SearchRater ProxyID: no proxy object stored for item #" + id); }
-    ////delete this.idtoitem[id];                               // delete from cache
-    return(item);                                           // return item
-};
-//
-//  delitem -- get item from ID.
-//
-//  Done with this proxy item
-//
-ProxyID.prototype.delitem = function(id) 
-{   var item = this.idtoitem[id];                           // get item, which should be present
-    if (item === undefined || item === null)                // should always find
-    {   console.error("SearchRater ProxyID delete: no proxy object stored for item #" + id); }
-    delete this.idtoitem[id];                               // delete from cache
-};
 
 //
 //  startcontentscript -- starts the content script
@@ -91,6 +27,8 @@ function startcontentscript()
     prefs.verbosepref = true;                                                     // ***TEMP***
     startratings(document);                                             // start the rating process
 }
+
+function checkurlchange() {}                                            // OBSOLETE
 //
 //
 //    querySiteTruthServer  --  general query request generator, Greasemonkey mode
@@ -136,12 +74,19 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
     var domains = Object.keys(rateitems);                               // array of domains of interest   
     if (prefs.verbosepref) 
     {   console.log("querySiteTruthServerTry domains: " + domains); 
-        console.log("Instance #" + instanceid + "  check of document.URL: " + document.URL);  // Mozila BUG 693345 check
     }
-    if (domains.length == 0) return;                                    // nothing to do
-    var id = proxyids.getid({rateitems: rateitems, ratedcallback: ratedcallback, retriesleft: retriesleft});  // we'll need this at the callback
-    var query = { id: id, domains: domains, extraargs: extraargs };     // parameters to serialize
-    self.port.emit("ratereq", query);                                   // send to server in JSON format
+    if (domains.length == 0) return;                                    // nothing to do    
+    var queryurl = buildSiteTruthQuery(domains, extraargs);             // build the query URL
+    console.log("Query URL: " + queryurl);                              // show the query URL
+    var req = new XMLHttpRequest();                                     // to "sitetruth.com"
+    function reqListener () {                                           // ***TEMP**
+        console.log("XMLHttp Response: " + this.responseText);
+    }
+    ///req.addEventListener("load", reqListener);
+    ////req.onload = reqListener;
+    req.addEventListener("load", reqListener);
+    req.open("GET", queryurl);
+    req.send();
 };
 //
 //  querySiteTruthServerReply --  Communication from add-on code.
@@ -190,5 +135,37 @@ function querySiteTruthServerReply(replymsg)
     }
 }
     
-////self.port.on("ratereply", querySiteTruthServerReply);                   // set up reply connection
-////self.port.on("ratecachereply", querySiteTruthCacheReply);               // set up reply connection
+//
+//    buildSiteTruthQuery  -- build a SiteTruth query url
+//
+//    Format is:
+//        http://www.sitetruth.com/fcgi/rateapiv1.fcgi?url="urla"&url="urlb"&...
+//
+//    This query URL will query the database, and start a rating if necessary
+//    Retry every 5 seconds if status is 202; a rating is in progress.
+//
+//    Input is an array of domain names.
+//    Extraargs is an associative array of the form {key: value, ... }
+//
+function buildSiteTruthQuery(queries, extraargs)
+{   var result = strateprefix;                                      // standard API, V3, with JSON support
+    var nodata = true;                                              // if no data yet
+    for (let domain of queries)                                     // get all domains in query
+    {   if (queries[domain] === null) { continue; }                 // skip nulls
+        if (nodata)                                                 // if no data yet
+        {    result += "?"; nodata = false; }                       // first field gets "?"
+        else
+        {    result += "&"; }                                       // later fields get "&"
+        result += "url=" + encodeURIComponent(domain);              // add next component
+    }
+    if (nodata) { return(null); }                                   // return null if no items
+    if (extraargs !== null)                                         // add additional args
+    {   for (var key in extraargs)                                  // add additional fields
+        {    result += "&" + encodeURIComponent(key) + "=" +        // add "key=value" to URI
+                encodeURIComponent(extraargs[key]); 
+        }
+    }
+    result += '&format=json';                                       // request JSON output
+    return(result);                                                 // return URL, ready for net
+}
+

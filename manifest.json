@@ -10,7 +10,7 @@
   },
   
   "permissions": [
-    "*://sitetruth.com/*",
+    "*://*.sitetruth.com/*",
     "webRequest",
     "storage"
   ],
