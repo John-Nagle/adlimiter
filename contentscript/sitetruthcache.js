@@ -44,11 +44,12 @@ function storageset(type, keyvaluepairs) {
 function storageget(type, keys)
 {   
     var queries = []                                        // build cache queries
-    for (var key in keys) {                                 // for all keys
+    for (let key of keys) {                                 // for all keys
        if (key === null || key === undefined) continue;     // skip duds
        queries.push(type + key);                            // queries must be prefixed with type
     }
     if (queries.length == 0) return(Promise.resolve({}));   // nothing to ask, return an empty object
+    console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
     return(browser.storage.local.get(queries));             // return promise
 }
 //  
@@ -75,20 +76,25 @@ function storageerror(error) {
 function cachesearch(domains, callback)
 {
     function found(items) {                             // called by promise
+        console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
         var result = {};                                // result is a set of key:value pairs
         var now = nowsecs();                            // time now
-        for (var domain in items)                       // for all keys in result
-        {   var val = items[domain];                    // get value 
-            if (val === undefined || val === null || val.ratingreply === undefined || val.ratingreply === null) // null in storage
-            {   storagedelete(RATINGPREFIX, domain);    // remove junk entry
+        for (var key in items)                          // for all keys in result
+        {   var val = items[key];                       // get value 
+            if (val === undefined || 
+                val === null || 
+                val.ratingreply === undefined ||
+                val.ratingreply === null ||             // null in storage
+                val.ratingreply.domain === undefined)   // domain must be valid
+            {   storage.local.remove(key);              // remove junk entry
                 continue;
             }
             var ttl =  val.ttl - now;                   // time to live in seconds
             if (ttl < 0)                                // if expired
-            {   storagedelete(RATINGPREFIX, domain);    // get rid of expired item asynchronously
+            {   storage.local.remove(key);              // get rid of expired item asynchronously
                 continue;
             }
-            result[key] = val.ratingreply;              // return stored rating reply
+            result[val.ratingreply.domain] = {rating: val.ratingreply.rating, ratingreply: val.ratingreply };       // return stored rating reply
         }
         //  Found data
         callback(result);                               // return { domain: ratingreply ... }     
@@ -114,9 +120,9 @@ function cachesearch(domains, callback)
 }
 OBSOLETE */
 //
-//      cachedupdate  --  update entry in cache
+//      cacheupdate  --  update entries in cache
 //
-//      Async, but no callback
+//      Async, but no callback. Done in bulk to avoid unnecessary async events.
 //
 //      Yes, an extra level of object encapsulation. Backwards compatibility.
 //
@@ -124,8 +130,9 @@ function cacheupdate(ratingitempairs, ttlsecs)
 {   var updateitems = {}
     var now = nowsecs();                                // timestamp
     for (var domain in ratingitempairs) {
-        updateitems[domain] = {ttl: now + TTLSECS, ratingitem: ratingitem };
+        updateitems[domain] = {ttl: now + ttlsecs, ratingreply: ratingitempairs[domain] };
     }
+    console.log("Updating cache: " + JSON.stringify(updateitems));    // ***TEMP***
     storageset(RATINGPREFIX, updateitems);              // insert, no callback
 }
 //
@@ -173,8 +180,8 @@ function cachepurge(ttlsecs)
 //
 //    Use of cache for SiteTruth rating
 //
-function updatedomaincache(domain, rating, ratingreply)
-{    cacheupdate(domain, {rating: rating, ratingreply: ratingreply}, kcachettl);    }    // update cache
+function updatedomaincache(cacheinserts)
+{    cacheupdate(cacheinserts, KCACHETTL);    }    // update cache
 //
 //    checkdomaincache  --  check in cache.
 //

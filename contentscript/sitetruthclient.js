@@ -22,7 +22,6 @@ function startcontentscript()
 {   ////var msg = self.options;                                             // get options from PageMod
     prefs = kdefaultprefs;                                              // ***TEMP*** use canned prefs
     ////prefs = msg.prefs;                                                  // extract prefs
-    ////datadir = msg.datadir;                                              // data directory of the add-on
     ////verbose = prefs.verbosepref;                                        // set verbose flag
     prefs.verbosepref = true;                                                     // ***TEMP***
     startratings(document);                                             // start the rating process
@@ -77,10 +76,9 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
     }
     if (domains.length == 0) return;                                    // nothing to do    
     var queryurl = buildSiteTruthQuery(domains, extraargs);             // build the query URL
-    console.log("Query URL: " + queryurl);                              // show the query URL
     var req = new XMLHttpRequest();                                     // to "sitetruth.com"
-    function reqListener () {                                           // ***TEMP**
-        console.log("XMLHttp Response: " + this.responseText);
+    function reqListener () {                                           // closure for callback
+        ////console.log("XMLHttp Response: " + this.responseText);
         var replyarray = JSON.parse(this.responseText);                 // parse JSON into an array
         siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft); // handle reply
     }
@@ -101,25 +99,29 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
 function siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft)
 {
     var rerateitems = {}                                                // domains needing further work
+    var cacheinserts = {};                                              // to be inserted in cache
     ////prefs.verbosepref = true    // ***TEMP***
     if (prefs.verbosepref) { console.log("querySiteTruthServerReply: " + JSON.stringify(replyarray)); }           // debug  
     for (var i=0; i < replyarray.length; i++)                           // for all items in reply
-    {   var reply = replyarray[i];                                      // one item in reply
-        var elts = rateitems[reply.domain];                             // get elt 
-        if (reply.status == "202")                                      // if must try again
+    {   var ratingitem = replyarray[i];                                 // one item in reply
+        var elts = rateitems[ratingitem.domain];                        // get elt 
+        if (ratingitem.status == "202")                                 // if must try again
         {   if (retriesleft > 0)                                        // if we can retry
-            {   rerateitems[reply.domain] = elts;                       // make new to-do list
+            {   rerateitems[ratingitem.domain] = elts;                  // make new to-do list
                 continue;                                               // don't need to touch visible icon
-                ////reply.rating = 'W';                                     // In-progress symbol
-                ////reply.ratinginfo = 'rating...';                         // Rating in progress
+                ////ratingitem.rating = 'W';                            // In-progress symbol
+                ////ratingitem.ratinginfo = 'rating...';                // Rating in progress
             } else {
             //  No more retries. Return dummy result
-                reply.rating = 'U';                                     // grey circle
-                reply.ratinginfo = 'timeout';                           // status is timeout
+                ratingitem.rating = 'U';                                // grey circle
+                ratingitem.ratinginfo = 'timeout';                      // status is timeout
             }
-        } 
-        ratedcallback(elts, reply.domain, reply.rating, reply);  // this will place rating icons in DOM
+        }
+        if (ratingitem.status == "200")                                 // if success
+        {   cacheinserts[ratingitem.domain] = ratingitem;  }            // add to cache      
+        ratedcallback(elts, ratingitem.domain, ratingitem.rating, ratingitem);  // this will place rating icons in DOM
     }
+    updatedomaincache(cacheinserts);                                    // update domain cache
     //  Handle domains which need to be tried again.  We do this on in the content script
     //  so that if the page is closed, no more requests are made of the SiteTruth server.
     if (Object.keys(rerateitems).length > 0)                            // if rerate hash not empty                                                     // if anything needs a retry
