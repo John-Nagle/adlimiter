@@ -21,6 +21,7 @@ const stdetailslink2 = "?format=popup"              // end details link
 const KCACHETTL = 60*60*24*7;                       // Lifetime of cache entries, seconds
 const kaddonname = "Ad Limiter";                    // name of the add-on for display
 const kretrysecs = 5;                               // server retry every 5 seconds
+const QUERYTIMEOUTSECS = 10;                        // time our server request after 10 seconds
 const kmaxretries = 24;                             // stop retries after 2 minutes
 
 const kdefaultprefs = {                             // default preferences

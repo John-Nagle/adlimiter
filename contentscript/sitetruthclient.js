@@ -57,13 +57,19 @@ function querySiteTruthCache(rateitems, ratedcallback)
     cachesearch(domains, ratedcallback);                                // do the search and get called back 
 }
 //
+//  notify -- post notification
+//
+//  Can't do this from a content script. 
+//
+function notify(msg) {
+    console.log("Notification: " + msg);                                // ***TEMP***
+    }
+//
 //  querySiteTruthSserver --  query rating server and cache.
 //
 //  "ratedcallback" will be called for each item rated, which may take time as
 //  ratings come in from the server.
 //
-//  Message: "ratereq" => "ratereply"
-//  ***NEEDS WORK FOR WEBEXTENSIONS***
 //
 function querySiteTruthServer(rateitems, ratedcallback, extraargs)      // external call, no retry count
 {   querySiteTruthServerTry(rateitems, ratedcallback, extraargs, kmaxretries) } // call with retry count
@@ -76,16 +82,56 @@ function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retrieslef
     }
     if (domains.length == 0) return;                                    // nothing to do    
     var queryurl = buildSiteTruthQuery(domains, extraargs);             // build the query URL
-    var req = new XMLHttpRequest();                                     // to "sitetruth.com"
-    function reqListener () {                                           // closure for callback
-        ////console.log("XMLHttp Response: " + this.responseText);
-        var replyarray = JSON.parse(this.responseText);                 // parse JSON into an array
+    //  reqFail -- report failure of query 
+    function reqfailreport(status, statustext) {
+        console.error("SiteTruth query failed: " + status + " (" + statustext + ")");
+        var replyarray = [];                                            // no reply array yet    
+        for (let domain of domains)                                     // Failure puts a grey circle on all items.
+        {   var dummyreply = {domain: domain, rating: "U", ratingreply: {ratinginfo: "error"}, done: true}; 
+            replyarray.push(dummyreply);                                // generate dummy replies
+        }
         siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft); // handle reply
     }
-    req.addEventListener("load", reqListener);
+    //  reqComplete -- callback from XMLHttpRequest
+    function reqComplete () {                                           // closure for callback
+        var replyarray = [];                                            // no reply array yet    
+        var status = this.status;                                       // get response status
+        if (status != 200)                                              // if trouble
+        {   if (status == 403)                                          // "Forbidden"
+            {   var msg1 = "The SiteTruth rating access key (" + extraargs["key"] + ") is not valid.";
+                notify(msg1 + "\nPlease check for a later version of this browser add-on.");
+                return;
+            } else if (status == 410)                                          // "Gone"
+            {   notify("The SiteTruth API version used is obsolete.\nPlease check for a later version of this browser add-on.");
+                return;
+            } else {
+                notify("SiteTruth ratings are temporarily unavailable. (HTTP error " + status + " connecting to server.)");
+            } 
+            reqfailreport(status, this.statustext);                     // deal with failure
+            return;                                                     // fails
+        }                                                               // good case
+            ////console.log("XMLHttp Response: " + this.responseText);
+        try {
+            var replyarray = JSON.parse(this.responseText);             // parse JSON into an array
+        }
+        catch (e) {
+            notify("Unable to connect to SiteTruth API properly. Not receiving valid replies.");
+            reqfailreport(299, "Invalid JSON");
+        }
+        //  Success
+        siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, retriesleft); // handle reply
+    }
+    //  reqTimeout - timed out
+    function reqTimeout() {                                             // closure for timeout
+        this.status = 408;                                              // use timeout status
+        reqComplete();                                                  // handle as error
+    }
+    var req = new XMLHttpRequest();                                     // make request to "sitetruth.com"
+    req.onload = reqComplete;
+    req.timeout = QUERYTIMEOUTSECS * 1000;                              // timeout is in milliseconds
+    req.ontimeout = reqTimeout;
     req.open("GET", queryurl);
     req.send();                                                         // query Sitetruth server.
-    //  ***NEED ERROR AND TIMEOUT HANDLING***
 };
 //
 //  siteTruthServerReply --  Communication from add-on code.
@@ -100,11 +146,9 @@ function siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, r
 {
     var rerateitems = {}                                                // domains needing further work
     var cacheinserts = {};                                              // to be inserted in cache
-    ////prefs.verbosepref = true    // ***TEMP***
     if (prefs.verbosepref) { console.log("querySiteTruthServerReply: " + JSON.stringify(replyarray)); }           // debug  
-    for (var i=0; i < replyarray.length; i++)                           // for all items in reply
-    {   var ratingitem = replyarray[i];                                 // one item in reply
-        var elts = rateitems[ratingitem.domain];                        // get elt 
+    for (let ratingitem of replyarray)                                  // for all items in reply
+    {   var elts = rateitems[ratingitem.domain];                        // get elt 
         if (ratingitem.status == "202")                                 // if must try again
         {   if (retriesleft > 0)                                        // if we can retry
             {   rerateitems[ratingitem.domain] = elts;                  // make new to-do list
