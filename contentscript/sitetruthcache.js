@@ -18,8 +18,8 @@ const RATINGPREFIX = "R-";
 //
 //    This ought to be standard.
 //
-function nowsecs()
-{   var now = new Date();                            // current data object
+function nowsecs() {
+    var now = new Date();                            // current data object
     return(Math.round(now.getTime() / 1000));        // return secs since epoch                
 }
 
@@ -41,8 +41,7 @@ function storageset(type, keyvaluepairs) {
 //  
 //  Returns a promise of an array
 //
-function storageget(type, keys)
-{   
+function storageget(type, keys) {   
     var queries = []                                        // build cache queries
     for (let key of keys) {                                 // for all keys
        if (key === null || key === undefined) continue;     // skip duds
@@ -60,12 +59,6 @@ function storageerror(error) {
 }
 
 
-////if (msimplestorage.storage.ratingcache === undefined)   // if cache does not exist yet
-////{   msimplestorage.storage.ratingcache = {}             // set it up
- ////   msimplestorage.storage.lastcachepurgetime = nowsecs();
- ////   ////console.log("SearchRater cache created.");
-////}
-
 //
 //    Internal format is:
 //    
@@ -73,8 +66,7 @@ function storageerror(error) {
 //
 //    cachesearch --  look up entries in cache, get called back on find or no find with array of results.
 //
-function cachesearch(domains, callback)
-{
+function cachesearch(domains, callback) {
     function found(items) {                             // called by promise
         console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
         var result = {};                                // result is a set of key:value pairs
@@ -86,12 +78,13 @@ function cachesearch(domains, callback)
                 val.ratingreply === undefined ||
                 val.ratingreply === null ||             // null in storage
                 val.ratingreply.domain === undefined)   // domain must be valid
-            {   storage.local.remove(key);              // remove junk entry
+            {   browser.storage.local.remove(key);      // remove junk entry
                 continue;
             }
             var ttl =  val.ttl - now;                   // time to live in seconds
+            console.log("Cache TTL check for " + key + ": TTL = " + ttl);   // ***TEMP***
             if (ttl < 0)                                // if expired
-            {   storage.local.remove(key);              // get rid of expired item asynchronously
+            {   browser.storage.local.remove(key);      // get rid of expired item asynchronously
                 continue;
             }
             result[val.ratingreply.domain] = {rating: val.ratingreply.rating, ratingreply: val.ratingreply };       // return stored rating reply
@@ -126,8 +119,8 @@ OBSOLETE */
 //
 //      Yes, an extra level of object encapsulation. Backwards compatibility.
 //
-function cacheupdate(ratingitempairs, ttlsecs)
-{   var updateitems = {}
+function cacheupdate(ratingitempairs, ttlsecs) {
+    var updateitems = {}
     var now = nowsecs();                                // timestamp
     for (var domain in ratingitempairs) {
         updateitems[domain] = {ttl: now + ttlsecs, ratingreply: ratingitempairs[domain] };
@@ -140,35 +133,43 @@ function cacheupdate(ratingitempairs, ttlsecs)
 //
 //  Every "ttlsecs", all old entries are purged.
 //
-//  ***NEEDS WORK***
+//  ***NEEDS WORK*** Need to detect excessive memory consumption.
 //
-function cachepurge(ttlsecs)
-{   var now = nowsecs();
-    function found(item) {
-        if (item === undefined || item === null) return; // no find
-        var val = item[key];                            // get value 
-        if (item[key] === undefined || item[key] === null) //   no find
-        {   storageset(LASTCACHEPURGETIME,"", {purgetime: now });   // set last purge time as now
-            console.log("Note: initialized SiteTruth cache."); 
+function cachepurge(ttlsecs) {
+    var now = nowsecs();
+    function fetchedall(items) {
+        var removelist = [];
+        for (var key in items) {
+            if (!key.startsWith(RATINGPREFIX)) continue; // ignore storage items which are not ratings.
+            var val = items[key];
+            if (val === undefined  || val === null ||
+                val.ttl === undefined || val.ttl === null |
+                val.ratingreply === undefined || val.ratingreply === null ||  // null in storage
+                val.ratingreply.domain === undefined)   // domain must be valid
+            {   removelist.push(key);                   // add to remove list
+                continue;
+            }
+            var ttl =  val.ttl - now;                   // time to live in seconds
+            console.log("Cache TTL check for " + key + ": TTL = " + ttl);   // ***TEMP***
+            if (ttl < 0)                                // if expired
+            {   removelist.push(key);                   // add to remove list
+                continue;
+            }
         }
-        if (val.purgetime + TTLSECS >  now) return;     // no purge needed
-        //  Do purge
-        if (prefs.verbose) 
-        {   console.log("Note: purged old SiteTruth ratings from cache at time " + nowsecs() + ".");    }
-        // ***NEED TO READ ALL ENTRIES AND PURGE OLD ONES***
-    } 
-    storageget(LASTCACHEPURGETIME,"").then(found, storageerror);
+        if (prefs.verbosepref) 
+        {   console.log("Note: purged " + removelist.length + " old SiteTruth ratings from cache at time " + now + ".");    }
+        browser.storage.local.set({LASTCACHEPURGETIME: now});     // record last time we did this
+        if (removelist.length == 0) return;        
+        browser.storage.local.remove(removelist);       // remove everything that timed out.
+    }
+    function checkpurgeneeded(item) {
+        var lastpurgetime = item.LASTCACHEPURGETIME;    // get time of last purge
+        if (lastpurgetime === undefined || lastpurgetime === null || now - lastpurgetime > ttlsecs)
+        {   browser.storage.local.get().then(fetchedall, storageerror);   }        // get everything for the purge
+    }
+    //  Get last purge time, if any.   
+    browser.storage.local.get(LASTCACHEPURGETIME).then(checkpurgeneeded, storageerror);
 }
-/* OBSOLETE   
-    if (msimplestorage.storage.lastcachepurgetime + ttlsecs > now)  // no purge
-    {   return; }                                                   // no purge
-    var prefs = getprefs();                         // get preferences object
-    if (prefs.verbose) 
-    {   console.log("Note: purged old SiteTruth ratings from cache at time " + nowsecs() + ".");    }
-    for (var key in msimplestorage.storage.ratingcache) // for all keys
-    {    cachesearch(key);   }                      // this will delete obsolete values
-    msimplestorage.storage.lastcachepurgetime = now;// time of last purge is now
-} OBSOLETE */
 //
 //  Cache overflow handling.  This is unlikely, but should be handled.
 //
@@ -180,14 +181,7 @@ function cachepurge(ttlsecs)
 //
 //    Use of cache for SiteTruth rating
 //
-function updatedomaincache(cacheinserts)
-{    cacheupdate(cacheinserts, KCACHETTL);    }    // update cache
-//
-//    checkdomaincache  --  check in cache.
-//
-//    Returns {rating: rating, ratingreply: ratingreply} or null.
-//
-function searchdomaincache(domain)
-{    
-    return(cachesearch(domain));                    // return rating, ratingreply
+function updatedomaincache(cacheinserts) {
+    cachepurge(KCACHETTLSECS);                          // purge cache of old itesm if necessary
+    cacheupdate(cacheinserts, KCACHETTLSECS);           // add new items     
 }
