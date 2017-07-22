@@ -48,7 +48,7 @@ function storageget(type, keys) {
        queries.push(type + key);                            // queries must be prefixed with type
     }
     if (queries.length == 0) return(Promise.resolve({}));   // nothing to ask, return an empty object
-    ////console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
+    console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
     return(browser.storage.local.get(queries));             // return promise
 }
 //  
@@ -68,23 +68,23 @@ function storageerror(error) {
 //
 function cachesearch(domains, callback) {
     function found(items) {                             // called by promise
-        ////console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
+        console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
         var result = {};                                // result is a set of key:value pairs
         var now = nowsecs();                            // time now
         for (var key in items)                          // for all keys in result
         {   var val = items[key];                       // get value 
-            if (val === undefined || 
+            if (val === undefined ||                    // check for junk data in cache
                 val === null || 
-                val.age === undefined ||
-                val.age === null ||
+                val.timestamp === undefined ||
+                val.timestamp === null ||
                 val.ratingreply === undefined ||
                 val.ratingreply === null ||             // null in storage
                 val.ratingreply.domain === undefined)   // domain must be valid
             {   browser.storage.local.remove(key);      // remove junk entry
                 continue;
             }
-            var age = now - timestamp;                  // age of item
-            ////console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            var age = now - val.timestamp;              // age of item
+            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
             if (age > KCACHETTLSECS || age < 0)         // if expired or bogus
             {   browser.storage.local.remove(key);      // get rid of expired item asynchronously
                 continue;
