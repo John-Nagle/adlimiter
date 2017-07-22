@@ -48,14 +48,14 @@ function storageget(type, keys) {
        queries.push(type + key);                            // queries must be prefixed with type
     }
     if (queries.length == 0) return(Promise.resolve({}));   // nothing to ask, return an empty object
-    console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
+    ////console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
     return(browser.storage.local.get(queries));             // return promise
 }
 //  
 //  storageerror
 // 
 function storageerror(error) {
-    console.log(`Browse storage error: ${error}`);
+    console.error(`Browse storage error: ${error}`);
 }
 
 
@@ -68,7 +68,7 @@ function storageerror(error) {
 //
 function cachesearch(domains, callback) {
     function found(items) {                             // called by promise
-        console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
+        ////console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
         var result = {};                                // result is a set of key:value pairs
         var now = nowsecs();                            // time now
         for (var key in items)                          // for all keys in result
@@ -84,7 +84,7 @@ function cachesearch(domains, callback) {
                 continue;
             }
             var age = now - timestamp;                  // age of item
-            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            ////console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
             if (age > KCACHETTLSECS || age < 0)         // if expired or bogus
             {   browser.storage.local.remove(key);      // get rid of expired item asynchronously
                 continue;
@@ -110,7 +110,7 @@ function cacheupdate(ratingitempairs) {
     for (var domain in ratingitempairs) {
         updateitems[domain] = {timestamp: now, ratingreply: ratingitempairs[domain] };
     }
-    console.log("Updating cache: " + JSON.stringify(updateitems));    // ***TEMP***
+    ////console.log("Updating cache: " + JSON.stringify(updateitems));    // ***TEMP***
     storageset(RATINGPREFIX, updateitems);              // insert, no callback
 }
 //
@@ -133,7 +133,7 @@ function cachepurge(ttlsecs) {
                 continue;
             }
             var age =  now - val.timestamp;             // time to live in seconds
-            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            ////console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
             if (age > ttlsecs || age < 0)               // if expired or bogus
             {   removelist.push(key);                   // add to remove list
                 continue;
