@@ -121,6 +121,7 @@ function cacheupdate(ratingitempairs) {
 function cachepurge(ttlsecs) {
     var now = nowsecs();
     function fetchedall(items) {
+        console.log("Get of all local storage: " + JSON.stringify(items));                              // ***TEMP***
         var removelist = [];
         for (var key in items) {
             if (!key.startsWith(RATINGPREFIX)) continue; // ignore storage items which are not ratings.
@@ -141,12 +142,16 @@ function cachepurge(ttlsecs) {
         }
         if (prefs.verbosepref) 
         {   console.log("Note: purged " + removelist.length + " old SiteTruth ratings from cache at time " + now + ".");    }
-        browser.storage.local.set({LASTCACHEPURGETIME: now});     // record last time we did this
+        var lastpurgetimeitem = {};
+        lastpurgetimeitem[LASTCACHEPURGETIME] = now;    // set timestamp of this purge
+        browser.storage.local.set(lastpurgetimeitem);   // record last time we did this
         if (removelist.length == 0) return;        
         browser.storage.local.remove(removelist);       // remove everything that timed out.
     }
-    function checkpurgeneeded(item) {
-        var lastpurgetime = item.LASTCACHEPURGETIME;    // get time of last purge
+    function checkpurgeneeded(items) {
+        var lastpurgetime = items[LASTCACHEPURGETIME];  // get time of last purge
+        console.log("Get of LASTCACHEPURGETIME: " + JSON.stringify(items));                              // ***TEMP***
+        console.log("Last cache purge was at " + lastpurgetime);    // ***TEMP***
         if (lastpurgetime === undefined || lastpurgetime === null || now - lastpurgetime > ttlsecs)
         {   browser.storage.local.get().then(fetchedall, storageerror);   }        // get everything for the purge
     }
