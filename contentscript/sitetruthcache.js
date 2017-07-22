@@ -62,7 +62,7 @@ function storageerror(error) {
 //
 //    Internal format is:
 //    
-//        { ttl: time, ratingreply: value }
+//        { timestamp: time, ratingreply: value }
 //
 //    cachesearch --  look up entries in cache, get called back on find or no find with array of results.
 //
@@ -75,15 +75,17 @@ function cachesearch(domains, callback) {
         {   var val = items[key];                       // get value 
             if (val === undefined || 
                 val === null || 
+                val.age === undefined ||
+                val.age === null ||
                 val.ratingreply === undefined ||
                 val.ratingreply === null ||             // null in storage
                 val.ratingreply.domain === undefined)   // domain must be valid
             {   browser.storage.local.remove(key);      // remove junk entry
                 continue;
             }
-            var ttl =  val.ttl - now;                   // time to live in seconds
-            console.log("Cache TTL check for " + key + ": TTL = " + ttl);   // ***TEMP***
-            if (ttl < 0)                                // if expired
+            var age = now - timestamp;                  // age of item
+            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            if (age > KCACHETTLSECS || age < 0)         // if expired or bogus
             {   browser.storage.local.remove(key);      // get rid of expired item asynchronously
                 continue;
             }
@@ -95,23 +97,6 @@ function cachesearch(domains, callback) {
     storageget(RATINGPREFIX, domains).then(found, storageerror);          // query, get promise
 }
     
-/* OBSOLETE    
-    var item = msimplestorage.storage.ratingcache[key];               // get by key
-    if (item === undefined) { return(null);  }          // no find
-    if (item === null)    { return(null); }             // no find
-    ////console.log("Cache info: " + val);                   // ***TEMP***
-    var ttl = item.ttl - nowsecs();                     // time to live in seconds
-    ////console.log("Cache find " + key + " ttl: " + ttl);       // ***TEMP***
-    //  Check for obsolete item format - no ratingreply
-    if (item.ratingreply === undefined)                 // if cache item is from an older version
-    {   ttl = -1; }                                     // expire and flush item
-    if (ttl < 0)                                        // if expired
-    {   delete(msimplestorage.storage.ratingcache[key]);// delete expired item
-        return(null);                                   // return null
-    }
-    return(item);                                       // return item, whic is a dict.
-}
-OBSOLETE */
 //
 //      cacheupdate  --  update entries in cache
 //
@@ -119,11 +104,11 @@ OBSOLETE */
 //
 //      Yes, an extra level of object encapsulation. Backwards compatibility.
 //
-function cacheupdate(ratingitempairs, ttlsecs) {
+function cacheupdate(ratingitempairs) {
     var updateitems = {}
     var now = nowsecs();                                // timestamp
     for (var domain in ratingitempairs) {
-        updateitems[domain] = {ttl: now + ttlsecs, ratingreply: ratingitempairs[domain] };
+        updateitems[domain] = {timestamp: now, ratingreply: ratingitempairs[domain] };
     }
     console.log("Updating cache: " + JSON.stringify(updateitems));    // ***TEMP***
     storageset(RATINGPREFIX, updateitems);              // insert, no callback
@@ -133,8 +118,6 @@ function cacheupdate(ratingitempairs, ttlsecs) {
 //
 //  Every "ttlsecs", all old entries are purged.
 //
-//  ***NEEDS WORK*** Need to detect excessive memory consumption.
-//
 function cachepurge(ttlsecs) {
     var now = nowsecs();
     function fetchedall(items) {
@@ -143,15 +126,15 @@ function cachepurge(ttlsecs) {
             if (!key.startsWith(RATINGPREFIX)) continue; // ignore storage items which are not ratings.
             var val = items[key];
             if (val === undefined  || val === null ||
-                val.ttl === undefined || val.ttl === null |
+                val.timestamp === undefined || val.timestamp === null |
                 val.ratingreply === undefined || val.ratingreply === null ||  // null in storage
                 val.ratingreply.domain === undefined)   // domain must be valid
             {   removelist.push(key);                   // add to remove list
                 continue;
             }
-            var ttl =  val.ttl - now;                   // time to live in seconds
-            console.log("Cache TTL check for " + key + ": TTL = " + ttl);   // ***TEMP***
-            if (ttl < 0)                                // if expired
+            var age =  now - val.timestamp;             // time to live in seconds
+            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            if (age > ttlsecs || age < 0)               // if expired or bogus
             {   removelist.push(key);                   // add to remove list
                 continue;
             }
@@ -171,17 +154,10 @@ function cachepurge(ttlsecs) {
     browser.storage.local.get(LASTCACHEPURGETIME).then(checkpurgeneeded, storageerror);
 }
 //
-//  Cache overflow handling.  This is unlikely, but should be handled.
-//
-////msimplestorage.on("OverQuota", function () 
-////    {   msimplestorage.storage.ratingcache = {}     // clear cache
-////        console.error("SearchRater cache overflowed.  Cache cleared.");
-////    }
-////);
-//
 //    Use of cache for SiteTruth rating
 //
 function updatedomaincache(cacheinserts) {
-    cachepurge(KCACHETTLSECS);                          // purge cache of old itesm if necessary
-    cacheupdate(cacheinserts, KCACHETTLSECS);           // add new items     
+    //  Should check for excessive amount of content in storage, but storage.StorageArea.getBytesInUse() is not yet implemented in Firefox.
+    cachepurge(KCACHETTLSECS);                          // purge cache of old items if necessary
+    cacheupdate(cacheinserts);                          // add new items     
 }
