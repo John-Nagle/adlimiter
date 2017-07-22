@@ -48,7 +48,7 @@ function storageget(type, keys) {
        queries.push(type + key);                            // queries must be prefixed with type
     }
     if (queries.length == 0) return(Promise.resolve({}));   // nothing to ask, return an empty object
-    console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
+    ////console.log("Calling browser.storage.local.get for " + queries);    // ***TEMP***
     return(browser.storage.local.get(queries));             // return promise
 }
 //  
@@ -68,7 +68,7 @@ function storageerror(error) {
 //
 function cachesearch(domains, callback) {
     function found(items) {                             // called by promise
-        console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
+        ////console.log("browser.storage.local.get returned " + JSON.stringify(items)); // ***TEMP***
         var result = {};                                // result is a set of key:value pairs
         var now = nowsecs();                            // time now
         for (var key in items)                          // for all keys in result
@@ -84,7 +84,7 @@ function cachesearch(domains, callback) {
                 continue;
             }
             var age = now - val.timestamp;              // age of item
-            console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
+            ////console.log("Cache age check for " + key + ": age = " + age);   // ***TEMP***
             if (age > KCACHETTLSECS || age < 0)         // if expired or bogus
             {   browser.storage.local.remove(key);      // get rid of expired item asynchronously
                 continue;
@@ -121,7 +121,7 @@ function cacheupdate(ratingitempairs) {
 function cachepurge(ttlsecs) {
     var now = nowsecs();
     function fetchedall(items) {
-        console.log("Get of all local storage: " + JSON.stringify(items));                              // ***TEMP***
+        ////console.log("Get of all local storage: " + JSON.stringify(items));                              // ***TEMP***
         var removelist = [];
         for (var key in items) {
             if (!key.startsWith(RATINGPREFIX)) continue; // ignore storage items which are not ratings.
@@ -150,8 +150,7 @@ function cachepurge(ttlsecs) {
     }
     function checkpurgeneeded(items) {
         var lastpurgetime = items[LASTCACHEPURGETIME];  // get time of last purge
-        console.log("Get of LASTCACHEPURGETIME: " + JSON.stringify(items));                              // ***TEMP***
-        console.log("Last cache purge was at " + lastpurgetime);    // ***TEMP***
+        ////console.log("Last cache purge was at " + lastpurgetime);    // ***TEMP***
         if (lastpurgetime === undefined || lastpurgetime === null || now - lastpurgetime > ttlsecs)
         {   browser.storage.local.get().then(fetchedall, storageerror);   }        // get everything for the purge
     }
