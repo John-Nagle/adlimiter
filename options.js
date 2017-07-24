@@ -4,7 +4,6 @@
 //  Chrome now prohibits JavaScript in option pages, so this has to be separate.
 //
 var KPREFSKEY = "P";								    // local storage name for prefs
-browser.storage.local.get(KPREFSKEY);   // ***TEMP***
 
 //
 //	onload  --  get existing prefs at page load
@@ -64,6 +63,6 @@ document.addEventListener('DOMContentLoaded', function () {
     onload();                                               // do startup processing
     var cancelbutton = document.getElementById("cancel")
     cancelbutton.addEventListener("click",docancel);        // handle cancel button
-    var updatebuttonbutton = document.getElementById("update")
-    cancelbutton.addEventListener("click",updateprefs);     // handle cancel button
+    var updatebutton = document.getElementById("update")
+    updatebutton.addEventListener("click",updateprefs);     // handle update button
 });
