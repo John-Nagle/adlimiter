@@ -19,8 +19,9 @@ var datadir = stimagebase;                                  // image directory o
 //
 //  startcontentscript -- starts the content script
 //
-function startcontentscript()
+function startcontentscript(patternlist)
 {   
+    if (!matchpatternlist(patternlist, document.baseURI)) return;      // ignore if doesn't match patterns
     function gotprefs(item) {                               // got prefs
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
@@ -212,7 +213,20 @@ function buildSiteTruthQuery(queries, extraargs)
     result += '&format=json';                                       // request JSON output
     return(result);                                                 // return URL, ready for net
 }
-
+//
+//  matchpatternlist -- match URL against list of regular expressions
+//
+function matchpatternlist(patternlist, url) {
+    console.log("URL: " + url);                                     // ***TEMP***
+    for (let pat of patternlist) {                                  // pattern list
+        var matched = pat.test(url);                                // does it match?
+        console.log("Testing (" + matched + ") " + pat);                                           // ***TEMP***
+        if (matched) return(true);
+    }
+    console.log("No match");                                        // ***TEMP***
+    return(false);                                                  // no match
+    
+}
 //
 //  loadprefs -- set preference settings from JSON from storage
 //

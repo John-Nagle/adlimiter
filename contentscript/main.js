@@ -21,7 +21,7 @@ const TESTITEM = "abc";                                 // ***TEMP***
 //  content script is loaded, this content script will be loaded for entire domains of search
 //  engines. Here, we have to quickly exit for URLs not of interest.
 //
-const ksearchengines = [
+const KSEARCHENGINES = [
     /^(https:\/\/|http:\/\/|)(www\.|)google\.com\/search.*/,        // main Google matches
     /^(https:\/\/|http:\/\/|)(www\.|)google\.com\/\#.*/,            // match Google URLs where args are a fragment, not proper args
     /^(https:\/\/|http:\/\/|)(www\.|)google\.com(\/(\?.*|)|)$/,     // match Google URLs where args are proper args
@@ -44,7 +44,4 @@ const ksearchengines = [
 //  Enable site rating
 console.log("Ad Limiter load start.");  // ***TEMP***
 
-////alert("AdLimiter fired."); // ***TEMP***
-////***MORE*** check URL aginst ksearchengines
-////mratingquery.enablesiterating(ksearchengines, clientmodules, null); 
-startcontentscript();                                               // ***TEMP*** need to test URL against ksearchengines list
+startcontentscript(KSEARCHENGINES);                                               
