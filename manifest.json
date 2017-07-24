@@ -15,6 +15,10 @@
     "storage"
   ],
   
+  "options_ui": {
+    "page": "options.html"
+  },
+  
   "web_accessible_resources": ["images/*.png", "images/*.gif", "images/*.png", "images/*.svg"],
 
   "content_scripts": [
