@@ -1,9 +1,9 @@
 //
-//  prefspanelchrome.js  -- preferences panel support for Ad Limiter
+//  options.js  -- preferences panel support for Ad Limiter
 //
 //  Chrome now prohibits JavaScript in option pages, so this has to be separate.
 //
-var KPREFSKEY = "P";								    // local storage name for prefs
+const KPREFSKEY = "P";								    // local storage name for prefs
 
 //
 //	onload  --  get existing prefs at page load

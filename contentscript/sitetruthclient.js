@@ -12,19 +12,20 @@
 //  Globals
 //
 "use strict";                                               // strict mode
-var prefs = null;                                           // no prefs yet
+var prefs = Object.assign({},KDEFAULTPREFS);                // Use default prefs if none read yet
 var datadir = stimagebase;                                  // image directory of the add-on
+
 
 //
 //  startcontentscript -- starts the content script
 //
 function startcontentscript()
-{   ////var msg = self.options;                                             // get options from PageMod
-    prefs = kdefaultprefs;                                              // ***TEMP*** use canned prefs
-    ////prefs = msg.prefs;                                                  // extract prefs
-    ////verbose = prefs.verbosepref;                                        // set verbose flag
-    prefs.verbosepref = true;                                                     // ***TEMP***
-    startratings(document);                                             // start the rating process
+{   
+    function gotprefs(item) {                               // got prefs
+        loadprefs(item);                                    // load pref data
+        startratings(document);                             // then rate
+    }
+    browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
 }
 
 function checkurlchange() {}                                            // OBSOLETE
@@ -211,4 +212,17 @@ function buildSiteTruthQuery(queries, extraargs)
     result += '&format=json';                                       // request JSON output
     return(result);                                                 // return URL, ready for net
 }
+
+//
+//  loadprefs -- set preference settings from JSON from storage
+//
+function loadprefs(item) {
+    var prefstr = item[KPREFSKEY];				                    // get prefs
+	console.log("Read prefs at page processing start: " + prefstr); // ***TEMP***
+    if (prefstr === undefined || prefstr === null) return;	        // if no stored prefs, skip
+    var prefwork = JSON.parse(prefstr);					            // parse prefs, which are a JSON string
+    if (prefwork === undefined || prefwork === null) return;	    // if no stored prefs, skip
+    prefs = prefwork;                                               // set global prefs
+}
+
 

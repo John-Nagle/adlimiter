@@ -24,7 +24,9 @@ const kretrysecs = 5;                               // server retry every 5 seco
 const QUERYTIMEOUTSECS = 10;                        // time our server request after 10 seconds
 const kmaxretries = 24;                             // stop retries after 2 minutes
 
-const kdefaultprefs = {                             // default preferences
+const KPREFSKEY = "P";								        // local storage name for prefs
+
+const KDEFAULTPREFS = {                             // default preferences
     verbosepref: false,                             // verbose mode (debugging)
     outlinepref: false,                             // dashed blue outlines around items (debugging)
     adpref: 1,                                      // show this many ads
@@ -36,7 +38,7 @@ const kdefaultprefs = {                             // default preferences
 //
 //  Set by configuration, which is platform-dependent  
 //
-//  For Jetpack version, values in prefspanel.html must match this
+//  Values in options.html must match this
 //
 const RATEDONOTRATE = 0;                  // do not rate 
 const RATESHOW = 1;                       // rate and show ratings
