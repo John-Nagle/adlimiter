@@ -6,7 +6,7 @@
   "description": "Reduces the number of ads on search result pages.",
 
   "icons": {
-    "48": "icons/border-48.png"
+    "48": "images/sitetruthicon-48.png"
   },
   
   "permissions": [
