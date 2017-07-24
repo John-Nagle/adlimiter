@@ -74,7 +74,7 @@ function notify(msg) {
 //
 //
 function querySiteTruthServer(rateitems, ratedcallback, extraargs)      // external call, no retry count
-{   querySiteTruthServerTry(rateitems, ratedcallback, extraargs, kmaxretries) } // call with retry count
+{   querySiteTruthServerTry(rateitems, ratedcallback, extraargs, KMAXRETRIES) } // call with retry count
 
 function querySiteTruthServerTry(rateitems, ratedcallback, extraargs, retriesleft)  // internal call, with retry count
 {   
@@ -176,7 +176,7 @@ function siteTruthServerReply(replyarray, rateitems, ratedcallback, extraargs, r
         //    Create a closure for the timer callback
         window.setTimeout(function() 
             {     querySiteTruthServerTry(rerateitems, ratedcallback, extraargs, retriesleft-1); },
-                kretrysecs*1000);
+                KRETRYSECS*1000);
     }
 }
     
@@ -217,13 +217,13 @@ function buildSiteTruthQuery(queries, extraargs)
 //  matchpatternlist -- match URL against list of regular expressions
 //
 function matchpatternlist(patternlist, url) {
-    console.log("URL: " + url);                                     // ***TEMP***
+    ////console.log("URL: " + url);                                     // ***TEMP***
     for (let pat of patternlist) {                                  // pattern list
         var matched = pat.test(url);                                // does it match?
-        console.log("Testing (" + matched + ") " + pat);                                           // ***TEMP***
+        ////console.log("Testing (" + matched + ") " + pat);                                           // ***TEMP***
         if (matched) return(true);
     }
-    console.log("No match");                                        // ***TEMP***
+    ////console.log("No match");                                        // ***TEMP***
     return(false);                                                  // no match
     
 }
@@ -232,7 +232,7 @@ function matchpatternlist(patternlist, url) {
 //
 function loadprefs(item) {
     var prefstr = item[KPREFSKEY];				                    // get prefs
-	console.log("Read prefs at page processing start: " + prefstr); // ***TEMP***
+	////console.log("Prefs at page processing start: " + prefstr);      // ***TEMP***
     if (prefstr === undefined || prefstr === null) return;	        // if no stored prefs, skip
     var prefwork = JSON.parse(prefstr);					            // parse prefs, which are a JSON string
     if (prefwork === undefined || prefwork === null) return;	    // if no stored prefs, skip
