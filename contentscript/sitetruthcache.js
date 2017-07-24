@@ -19,10 +19,8 @@ const RATINGPREFIX = "R-";
 //    This ought to be standard.
 //
 function nowsecs() {
-    var now = new Date();                            // current data object
-    return(Math.round(now.getTime() / 1000));        // return secs since epoch                
+    return(Math.floor(Date.now() / 1000));           // return secs since epoch                
 }
-
 //
 //  storageset -- store typed keys and values
 //

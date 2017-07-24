@@ -25,6 +25,7 @@ function startcontentscript(patternlist)
     function gotprefs(item) {                               // got prefs
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
+        notify("Testing notifications");                    // ***TEMP***
     }
     browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
 }
@@ -64,7 +65,8 @@ function querySiteTruthCache(rateitems, ratedcallback)
 //  Can't do this from a content script. 
 //
 function notify(msg) {
-    console.log("Notification: " + msg);                                // ***TEMP***
+    console.log("Notification sent: " + msg);                                // ***TEMP***
+    browser.runtime.sendMessage(msg);                                   // send to base for notification
     }
 //
 //  querySiteTruthSserver --  query rating server and cache.
