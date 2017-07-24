@@ -61,8 +61,6 @@ function docancel()
 //
 document.addEventListener('DOMContentLoaded', function () {
     onload();                                               // do startup processing
-    var cancelbutton = document.getElementById("cancel")
-    cancelbutton.addEventListener("click",docancel);        // handle cancel button
     var updatebutton = document.getElementById("update")
     updatebutton.addEventListener("click",updateprefs);     // handle update button
 });
