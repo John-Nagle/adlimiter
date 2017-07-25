@@ -14,6 +14,7 @@
 "use strict";                                       // strict mode
 //
 //  SiteTruth site information
+//
 const stsite = "http://www.sitetruth.com";          // base URL of SiteTruth site
 const stfcgibase = stsite + "/fcgi/";               // location of FCGI programs
 const strateprefix = stfcgibase + "rateapiv3.fcgi";    // API URL for queries

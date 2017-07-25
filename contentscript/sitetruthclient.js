@@ -25,12 +25,12 @@ function startcontentscript(patternlist)
     function gotprefs(item) {                               // got prefs
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
-        notify("Testing notifications");                    // ***TEMP***
+        ////notify("Testing notifications");                // ***TEMP***
     }
     browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
 }
 
-function checkurlchange() {}                                            // OBSOLETE
+function checkurlchange() {}                                // OBSOLETE - present to avoid modifying other code
 //
 //
 //    querySiteTruthServer  --  general query request generator, Greasemonkey mode
@@ -65,7 +65,7 @@ function querySiteTruthCache(rateitems, ratedcallback)
 //  Can't do this from a content script. 
 //
 function notify(msg) {
-    console.log("Notification sent: " + msg);                                // ***TEMP***
+    ////console.log("Notification sent: " + msg);                                // ***TEMP***
     browser.runtime.sendMessage(msg);                                   // send to base for notification
     }
 //
