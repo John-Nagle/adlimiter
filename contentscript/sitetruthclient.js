@@ -21,34 +21,16 @@ var datadir = stimagebase;                                  // image directory o
 //
 function startcontentscript(patternlist)
 {   
+    if (browser.extension.inIncognitoContext) return;       // don't run if in incognito tab, for privacy
     if (!matchpatternlist(patternlist, document.baseURI)) return;      // ignore if doesn't match patterns
     function gotprefs(item) {                               // got prefs
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
-        ////notify("Testing notifications");                // ***TEMP***
     }
     browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
 }
 
 function checkurlchange() {}                                // OBSOLETE - present to avoid modifying other code
-//
-//
-//    querySiteTruthServer  --  general query request generator, Greasemonkey mode
-//
-//    rateitems form is:
-//        { domain : elts, domain : elts, ... }
-//
-//    ratedcallback form is:
-//        callbackfn(elts, domain, rating, ratinginfo)
-//
-//    extrargs form is:
-//        { argname : value, argname : value ...)
-//    and adds additional args to the query URL.  The usual value for
-//    extraargs is { key: "guest" }
-//
-//    Use this generic version in all Javascript clients.
-//
-
 //
 //  querySiteTruthCache  --  query cache only.
 //
