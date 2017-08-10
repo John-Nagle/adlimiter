@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "AdLimiter WebExtension",
-  "version": "3.0.0",
+  "name": "AdLimiter",
+  "version": "3.0.1",
 
   "description": "Reduces the number of ads on search result pages.",
 
@@ -52,6 +52,7 @@
   ],
   "applications": {
     "gecko": {
+        "id": "adlimiter@sitetruth.com",
       }
   }
 }
