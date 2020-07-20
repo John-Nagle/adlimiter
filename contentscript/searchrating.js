@@ -289,11 +289,12 @@ function labeladlink(ritem, domain, rating, ratingreply)
             var i;
             for (i=0; i < children.length; i++)             // copy list
             {    ourchildren.push(children[i]);    }        // that we will be changing
+            enclosingelt.appendChild(newdiv);               // add DIV below elt. (Trying this before adding children)
             for (i=0; i < ourchildren.length; i++)          // for ell existing nodes
             {    newdiv.appendChild(ourchildren[i]);        // move children under our DIV
-                ////console.log("Put " + ourchildren[i].nodeName + " under SPAN");    // ***TEMP***
+                 if (prefs.verbosepref) {console.log("Put " + ourchildren[i].nodeName + " under new elt"); }   
             }
-            enclosingelt.appendChild(newdiv);               // add DIV below elt.
+            ///enclosingelt.appendChild(newdiv);               // add DIV below elt.
         }
         updateadlabel(newdiv, domain, rating, ratingreply);  // add rating info
         ////console.log("Element after mod child count: " + elt.childNodes.length);    // ***TEMP***
