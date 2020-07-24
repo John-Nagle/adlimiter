@@ -15,7 +15,7 @@
 //
 //  SiteTruth site information
 //
-const stsite = "http://www.sitetruth.com";          // base URL of SiteTruth site
+const stsite = "https://www.sitetruth.com";         // base URL of SiteTruth site
 const stfcgibase = stsite + "/fcgi/";               // location of FCGI programs
 const strateprefix = stfcgibase + "rateapiv3.fcgi";    // API URL for queries
 const stimagebase = browser.extension.getURL("/images/"); // base for image URLs for images which are part of add-on
