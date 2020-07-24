@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "AdLimiter",
-  "version": "3.0.2",
+  "version": "3.0.3",
 
   "description": "Reduces the number of ads on search result pages.",
 
@@ -32,7 +32,6 @@
         "*://*.bing.com/*",
         "*://*.duckduckgo.com/*",
         "*://*.google.com/*",
-        "*://*.iseek.com/*",
         "*://*.yandex.com/*",
         "*://*.search.yahoo.com/*"],
       "js": ["contentscript/sitetruthconfig.js", 

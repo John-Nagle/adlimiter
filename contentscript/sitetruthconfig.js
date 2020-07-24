@@ -63,8 +63,8 @@ const KSEARCHENGINES = [
     /^(https:\/\/|http:\/\/|)(www\.|)bing.com\/search.*/,
     /^(https:\/\/|http:\/\/|)(www\.|)bing.com\/maps.*/,             // Bing maps, too
     /^(https:\/\/|http:\/\/|)search.yahoo.com\/.*/,
-    /^(https:\/\/|http:\/\/|)(www\.|)(education.|)iseek.com\/iseek\/.*/,
-    /^(https:\/\/|http:\/\/|)(www\.|)yandex.com\/yandsearch.*/,      // Yandex
+    /^(https:\/\/|http:\/\/|)(www\.|)yandex.com\/yandsearch.*/,     // Yandex
+    /^(https:\/\/|http:\/\/|)(www\.|)yandex.com\/search.*/,         // Yandex
     /^(https:\/\/|http:\/\/|)(www\.|)duckduckgo\.com\/\?q\=.*/
     ];
     
