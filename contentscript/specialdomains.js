@@ -35,16 +35,13 @@ var specialdomains = {
     "googleusercontent.com" : donothinglink,                // ignore in-house Google link
     "youtube.com" : donothinglink,                          // ignore in-house Google link
     "blogger.com" : donothinglink,                          // ignore in-house Google link
-    "bing.com" : donothinglink,                             // ignore in-house links on Bing pages
+    "bing.com" : dobinglink,                                // in-house links on Bing pages
     "msn.com" : donothinglink,                              // ignore MSN content
     "live.com" : donothinglink,                             // ignore MSN Live content
-    "blekko.com" : donothinglink,                           // ignore Blekko content
-    "blekko-webcache.com" : donothinglink,                  // ignore Blekko's other domain
     "duckduckgo.com" : donothinglink,                       // ignore DuckDuckGo
     "r.msn.com" : domsnsyndicationlink,                     // MSN ad, unknown advertiser
     "advertising.microsoft.com": doadredirectorlink,        // Microsoft ad, unknown advertiser
     "go.microsoft.com" : donothinglink,                     // Microsoft in-house link
-    "iseek.com" : donothinglink,                            // Iseek house link
     "yandex.com" : donothinglink,                           // Yandex in-house link
 };   
 
@@ -101,7 +98,7 @@ function dogooglemaplink(elt, domain, url, urlquery)
 function dogooglelink(elt, domain, url, urlquery)
 {
     if (url.startsWith("https://www.google.com/url")                // if redirect link
-    || url.startsWith("http://www.google/url")) 
+    || url.startsWith("http://www.google.com/url")) 
     {   var targeturl = findqueryfield(urlquery, {"q":0,});         // find target link
         if (targeturl)                                              // if find
         {   var linkitem = dolinkurl(elt, targeturl);               // treat as a basic link
@@ -109,6 +106,25 @@ function dogooglelink(elt, domain, url, urlquery)
         }
     }
     return(dogooglesyndicationlink(elt, domain, url, urlquery)); // not mobile indirect link, handle
+}
+//
+//  dobinglink -- do a link on a Bing page to Bing.
+//
+//  Typical Bing ad link:
+//
+//  <a class="b_textAdTitleLink" onclick="" 
+//    href="https://www.bing.com/aclk?...
+//
+//  Detects ads here. But we can't tell to whom the ad refers. That's encrypted.
+//
+function dobinglink(elt, domain, url, urlquery)
+{
+    if (url.startsWith("https://www.bing.com/aclk")                // if redirect link
+    || url.startsWith("http://www.bing.com/aclk")) 
+    {   if (prefs.verbosepref) console.log("Marked as ad: " + targeturl);  // note marked as ad
+        return(new Resultlink(elt, domain, "AD", false));           // Ad tracking link, no rating
+    }
+    return(null);                                                   // nothing to rate
 }
 //
 //      dogooglesyndicationlink  --  do a Google ad link

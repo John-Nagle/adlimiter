@@ -55,7 +55,7 @@ const KSEARCHENGINES = [
     /^(https:\/\/|http:\/\/|)(www\.|)google\.com(\/(\?.*|)|)$/,     // match Google URLs where args are proper args
     /^(https:\/\/|http:\/\/|)news\.google\.com\/.*/,
     /^(https:\/\/|http:\/\/|)maps\.google\.com\/.*/,                // now, with maps
-     /^(https:\/\/|http:\/\/|)(www\.|)google\...\/search.*/,
+    /^(https:\/\/|http:\/\/|)(www\.|)google\...\/search.*/,
     /^(https:\/\/|http:\/\/|)(www\.|)google\...\/\#.*/,             // match Google URLs where args are a fragment, not proper args
     /^(https:\/\/|http:\/\/|)(www\.|)google\...(\/(\?.*|)|)$/,      // match Google URLs where args are proper args
     /^(https:\/\/|http:\/\/|)news\.google\...\/.*/,                 // Google ccTLD matches
