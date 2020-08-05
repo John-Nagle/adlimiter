@@ -244,3 +244,91 @@ function doadtrackinglink(elt, domain, url, urlquery)
 //
 function donothinglink(elt, domain, url, urlquery)
 {   return(null);  }                        // ignore
+//
+//  Non-special domain links
+//
+//
+//  dononspeciallink  --  do a non-special link
+//
+//  For non-ad links.
+//  Except that, sometimes, what looks like a non-ad link is really a Google ad link.
+//
+function dononspeciallink(elt, domain, url, urlquery)
+{   
+    if (prefs.searchpref < 0) return(null);                         // configured off
+    var hreply = dononspecialgoogleadlink(elt, domain, url, urlquery);      // check for special Google case
+    if (!hreply)                                                    // if not special case                                
+    {   hreply = doadlinktarget(elt, domain);   }                   // pass to domain handler
+    if (hreply)                                                     // if successful
+    {   elt.removeAttribute("onmousedown");  }                      // remove unnecessary pass through Google
+    return(hreply);
+}
+
+//
+//  dononspecialgoogleadlink -- handle A tag where the target domain is in href but it might really be an ad link
+//
+//  This is required due to light obufusication in Google search result HTML.
+//
+//  ***ALSO NEED TO HANDLE CASE WHERE href is Google server link but target URL is elsewhere.***
+//  ***CHECK FOR PRESENCE OF ONMOUSEDOWN???***
+//  ***UNTESTED***
+//
+function dononspecialgoogleadlink(elt, domain, url, urlquery)
+{   if (elt.hasAttributes())
+    {   for (var i=0; i<elt.attributes.length; i++)                     // for all attributes
+        {   var attr = elt.attributes[i];                           // this attribute
+            if (attr.name == "href") { continue; }                  // we already looked at href
+            //  Doesn't matter what the attribute name is. 
+            //  Matters if it contains a Google ad URL.    
+            if (checkgoogleadurl(attr.value))                       // found a Google ad server URL
+            {   elt.removeAttribute("onmousedown");                 // remove extra pass through Google
+                if (prefs.verbose) 
+                {   console.log("Google ad target domain: " + domain); }    
+                return(new Resultlink(elt, domain, "AD", true));    // HREF is a rateable ad target
+            }
+        }
+    }
+    return(null);                                                   // no find, normal case
+}
+//
+//  checkgoogleadurl -- true if input contains a Google ad URL
+//  
+//  May be a comma-separated list of URLs. Or something else entirely.
+//
+//  May find a Google ad URL and a target site URL.
+//
+//  Returns target URL if target site URL and Google ad URL both.
+//  Returns true if Google ad URL only.
+//  Returns null if neither - non-ad.
+//
+function checkgoogleadurl(urls)
+{
+    var urltab = urls.split(',');
+    var targeturl = null;
+    var isad = false;                       // not yet known to be a ad
+    for (var url in urltab)
+    {   url = url.trim();                   // clean
+        if ((url.startsWith("http://")) || (url.startsWith("https://")))  // potential Google URL
+        {
+            if (containsgoogleadurl(url)) { isad = true; } //   Is an ad
+            else { targeturl = url; }                   // otherwise ad target           
+        }
+    }
+    if (targeturl == null && isad) { targeturl = true; }    // if ad link but no new target info
+    return(targeturl);
+}
+//
+//  containsgoogleadurl -- is this a Google ad server URL?
+//
+//  Check for dartsearch and Google URLs in specials list
+//
+function containsgoogleadurl(url)
+{
+    var parsedurl = parseurl(url);
+    if (parsedurl == null) { return(false); }                   // not parseable
+    var domain = parsedurl.getHost().toLowerCase();             // get the domain
+    var basedom = basedomain(domain);                           // get base domain
+    return(specialdomains[basedom] == dogooglesyndicationlink); // true if Google syndication link
+}
+
+

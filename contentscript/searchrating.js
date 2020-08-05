@@ -330,19 +330,21 @@ function doadlinktarget(elt, encodedtargeturl)
     return(null);                                                // failed, nothing to rate
 }
 //
-//  dononspeciallink  --  do a non-special link
+//  parseurl -- parse a URL
 //
-//  For non-ad links.
-//
-function dononspeciallink(elt, domain, url, urlquery)
-{   
-    if (prefs.searchpref < 0) return(null);                         // configured off
-    var hreply = doadlinktarget(elt, domain);                       // pass to domain handler
-    if (hreply)                                                     // if successful
-    {   elt.removeAttribute("onmousedown");  }                      // remove unnecessary pass through Google
-    return(hreply);
+function parseurl(url)
+{
+    try {
+        if ((url === undefined) || (url === null) || (url.length < 1) || 
+            (url[0] == "/") || (url[0] == '#'))                     // if not a good URL
+        {    return(null);    }                                     // can't be ad
+        var parsedurl = new Poly9.URLParser(url);                   // apply URL parser
+        return(parsedurl);                                          // return parser result object
+    } catch(e) {
+        console.log("Unparseable URL (" + e + "): " + url);         // long wierd URLs
+    }
+    return(null);     
 }
-
 //
 //  dolinkurl --  handle a url found in an element
 //
