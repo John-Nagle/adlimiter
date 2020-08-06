@@ -277,11 +277,9 @@ function dononspecialgoogleadlink(elt, domain, url, urlquery)
 {   if (elt.hasAttributes())
     {   for (var i=0; i<elt.attributes.length; i++)                 // for all attributes
         {   var attr = elt.attributes[i];                           // this attribute
-            console.log("Google non special ad link attr: " + attr.name + " = " + attr.value); // ***TEMP***
             if (attr.name == "href") { continue; }                  // we already looked at href
             //  Doesn't matter what the attribute name is. 
             //  Matters if it contains a Google ad URL. 
-            console.log("Google ad type 2 checking attr: " + attr.name + ": " + attr.value);    // ***TEMP***   
             if (checkgoogleadurl(attr.value))                       // found a Google ad server URL
             {   elt.removeAttribute("onmousedown");                 // remove extra pass through Google
                 if (prefs.verbose) 
@@ -300,7 +298,6 @@ function dospecialgoogleadlink(elt, domain, url, urlquery)
 {   if (elt.hasAttributes())
     {   for (var i=0; i<elt.attributes.length; i++)                 // for all attributes
         {   var attr = elt.attributes[i];                           // this attribute
-            console.log("Google special ad link attr: " + attr.name + " = " + attr.value); // ***TEMP***
             if (attr.name == "href") { continue; }                  // we already looked at href
             //  Doesn't matter what the attribute name is. 
             //  Matters if it contains a Google ad URL.
@@ -336,7 +333,6 @@ function checkgoogleadurl(urls)
     var isad = false;                       // not yet known to be a ad
     for (var url of urltab)
     {   url = url.trim();                   // clean
-        console.log("Possible google ad URL: " + url);           // ***TEMP***
         if ((url.startsWith("http://")) || (url.startsWith("https://")))  // potential Google URL
         {
             if (containsgoogleadurl(url)) { isad = true; } //   Is an ad
@@ -356,7 +352,6 @@ function containsgoogleadurl(url)
     var parsedurl = parseurl(url);
     if (parsedurl == null) { return(false); }                   // not parseable
     var domain = parsedurl.getHost().toLowerCase();             // get the domain
-    console.log("Contains google ad URL: " + domain);           // ***TEMP***
     var basedom = basedomain(domain);                           // get base domain
     return(specialdomains[basedom] == dogooglesyndicationlink); // true if Google syndication link
 }
