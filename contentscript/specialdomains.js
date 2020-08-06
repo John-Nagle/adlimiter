@@ -121,7 +121,7 @@ function dobinglink(elt, domain, url, urlquery)
 {
     if (url.startsWith("https://www.bing.com/aclk")                // if redirect link
     || url.startsWith("http://www.bing.com/aclk")) 
-    {   if (prefs.verbosepref) console.log("Marked as ad: " + targeturl);  // note marked as ad
+    {   if (prefs.verbosepref) console.log("Marked as ad: " + url);  // note marked as ad
         return(new Resultlink(elt, domain, "AD", false));           // Ad tracking link, no rating
     }
     return(null);                                                   // nothing to rate
@@ -141,11 +141,14 @@ function dogooglesyndicationlink(elt, domain, url, urlquery)
         }
         return(linkitem);
     }
-    //    Check for Google "redir" URL.  Ignore.
+    //  Check for Google "redir" URL.  Ignore.
     var redirfield = findqueryfield(urlquery, {"redir_url" : 0});    // get redir type URL
     if (redirfield)                                             // if find
     {    return(null);                                          // Google advertising itself
     }
+    //  Check for the ad target in some other field.
+    var linkitem = dospecialgoogleadlink(elt, domain, url, urlquery); // check for ad target
+    if (linkitem != null) { return(linkitem); }                 // found an ad
     if (prefs.verbosepref) {  console.log("Expected fields not found in Google ad URL: " + url); }
     return(null);                                        // nothing to rate
 }
@@ -269,27 +272,52 @@ function dononspeciallink(elt, domain, url, urlquery)
 //
 //  This is required due to light obufusication in Google search result HTML.
 //
-//  ***ALSO NEED TO HANDLE CASE WHERE href is Google server link but target URL is elsewhere.***
-//  ***CHECK FOR PRESENCE OF ONMOUSEDOWN???***
-//  ***UNTESTED***
 //
 function dononspecialgoogleadlink(elt, domain, url, urlquery)
 {   if (elt.hasAttributes())
-    {   for (var i=0; i<elt.attributes.length; i++)                     // for all attributes
+    {   for (var i=0; i<elt.attributes.length; i++)                 // for all attributes
         {   var attr = elt.attributes[i];                           // this attribute
+            console.log("Google non special ad link attr: " + attr.name + " = " + attr.value); // ***TEMP***
             if (attr.name == "href") { continue; }                  // we already looked at href
             //  Doesn't matter what the attribute name is. 
-            //  Matters if it contains a Google ad URL.    
+            //  Matters if it contains a Google ad URL. 
+            console.log("Google ad type 2 checking attr: " + attr.name + ": " + attr.value);    // ***TEMP***   
             if (checkgoogleadurl(attr.value))                       // found a Google ad server URL
             {   elt.removeAttribute("onmousedown");                 // remove extra pass through Google
                 if (prefs.verbose) 
-                {   console.log("Google ad target domain: " + domain); }    
+                {   console.log("Google type 2 ad target domain: " + domain); }    
                 return(new Resultlink(elt, domain, "AD", true));    // HREF is a rateable ad target
             }
         }
     }
     return(null);                                                   // no find, normal case
 }
+
+//
+//  dospecialgoogleadlink -- handle A tag where a Google domain is href but the non-Google target domain is in some other field
+//
+function dospecialgoogleadlink(elt, domain, url, urlquery)
+{   if (elt.hasAttributes())
+    {   for (var i=0; i<elt.attributes.length; i++)                 // for all attributes
+        {   var attr = elt.attributes[i];                           // this attribute
+            console.log("Google special ad link attr: " + attr.name + " = " + attr.value); // ***TEMP***
+            if (attr.name == "href") { continue; }                  // we already looked at href
+            //  Doesn't matter what the attribute name is. 
+            //  Matters if it contains a Google ad URL.
+            var possibleurl = checkgoogleadurl(attr.value);         // check for Google ad URL
+            if (possibleurl == null || possibleurl == true) { continue; } // skip if non URL  
+            //  Found a target URL
+            var parsedurl = parseurl(url);                          // parse URL into fields
+            if (parsedurl == null) { continue; }                    // not parseable as URL
+            domain = parsedurl.getHost().toLowerCase();             // extract domain
+            if (prefs.verbose) 
+            {   console.log("Google type 1 ad target domain: " + domain); }    
+            return(new Resultlink(elt, domain, "AD", true));    // HREF is a rateable ad target
+        }
+    }
+    return(null);                                                   // no find, normal case
+}
+
 //
 //  checkgoogleadurl -- true if input contains a Google ad URL
 //  
@@ -306,8 +334,9 @@ function checkgoogleadurl(urls)
     var urltab = urls.split(',');
     var targeturl = null;
     var isad = false;                       // not yet known to be a ad
-    for (var url in urltab)
+    for (var url of urltab)
     {   url = url.trim();                   // clean
+        console.log("Possible google ad URL: " + url);           // ***TEMP***
         if ((url.startsWith("http://")) || (url.startsWith("https://")))  // potential Google URL
         {
             if (containsgoogleadurl(url)) { isad = true; } //   Is an ad
@@ -327,6 +356,7 @@ function containsgoogleadurl(url)
     var parsedurl = parseurl(url);
     if (parsedurl == null) { return(false); }                   // not parseable
     var domain = parsedurl.getHost().toLowerCase();             // get the domain
+    console.log("Contains google ad URL: " + domain);           // ***TEMP***
     var basedom = basedomain(domain);                           // get base domain
     return(specialdomains[basedom] == dogooglesyndicationlink); // true if Google syndication link
 }
