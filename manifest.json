@@ -21,7 +21,7 @@
   },
   
   "background": {
-    "scripts": ["notifier.js"]
+    "scripts": ["browser-polyfill.js","notifier.js"]
   },
   
   "web_accessible_resources": ["images/*.png", "images/*.gif", "images/*.png", "images/*.svg"],
@@ -34,7 +34,8 @@
         "*://*.google.com/*",
         "*://*.yandex.com/*",
         "*://*.search.yahoo.com/*"],
-      "js": ["contentscript/sitetruthconfig.js", 
+      "js": ["browser-polyfill.js",
+            "contentscript/sitetruthconfig.js", 
             "contentscript/urlutillib.js",
             "contentscript/urlparserlib.js",
             "contentscript/urlutillib.js",
