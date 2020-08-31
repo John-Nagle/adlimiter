@@ -19,7 +19,8 @@ var kinsertedattr = "searchrater_inserted";         // attribute used to ID chan
 var kisadattr = "searchrater_isad";                 // this is an advertising link
 //
 var kratinginprogressmsg = "Rating in progress...";
-//
+const kratingtag = "span";                          // can be DIV, but Bing's anti-ad blocker doesn't like that.
+//  Globals
 var gballoonmgr = null;                             // balloon manager, if enabled
 var gmutationobserver = null;                       // mutation observer, if enabled
 //
@@ -144,7 +145,7 @@ function labeladlinks(rlinks, domain, rating, ratingreply)
 //
 function isstratingelt(elt)
 {   if (elt === null) { return(false); }                            // no elt, no
-    if (elt.nodeName.toLowerCase() != "div") { return(false); }     // not span, no
+    if (elt.nodeName.toLowerCase() != kratingtag) { return(false); }     // not span, no
     if (elt.getAttribute("class") === null)  { return(false); }     // no class, no
     if (!elt.getAttribute("class").match(/^strating/))  { return(false); }    // not ours, no
     return(true);                               // this is one of our inserted elts
@@ -252,13 +253,13 @@ function labeladlink(ritem, domain, rating, ratingreply)
     else if (isstratingelt(enclosingelt.parentNode))
     {   updateadlabel(enclosingelt.parentNode, domain, rating, ratingreply); }    // change tag
     else                                                // must create it
-    {   var newdiv = enclosingelt.ownerDocument.createElement("div");// create enclosing DIV
+    {   var newdiv = enclosingelt.ownerDocument.createElement(kratingtag);// create enclosing DIV or block mode SPAN
         var enclosingclass = "strating";
-        newdiv.setAttribute("class",enclosingclass);        // class for enclosing DIV
-        //    We now have a DIV tag to put around the advertisment.  
-        //    SiteTruth information can be attached to that DIV.
+        newdiv.setAttribute("class",enclosingclass);        // class for enclosing DIV or SPAN
+        //    We now have a DIV or SPAN tag to put around the advertisment.  
+        //    SiteTruth information can be attached to that DIV or SPAN.
         //    We create the structure
-        //        DIV    class="strating"
+        //        DIV/SPAN    class="strating"
         //            DIV    class="sticonlayer"
         //                A    link to details page (now SPAN, for mobile compat.)
         //                    IMG    rating icon
@@ -290,6 +291,7 @@ function labeladlink(ritem, domain, rating, ratingreply)
             for (i=0; i < children.length; i++)             // copy list
             {    ourchildren.push(children[i]);    }        // that we will be changing
             enclosingelt.appendChild(newdiv);               // add DIV below elt. (Trying this before adding children)
+            if (prefs.verbosepref) { console.log("Put new " + newdiv.nodeName + " under " + enclosingelt.nodeName); }
             for (i=0; i < ourchildren.length; i++)          // for ell existing nodes
             {    newdiv.appendChild(ourchildren[i]);        // move children under our DIV
                  if (prefs.verbosepref) {console.log("Put " + ourchildren[i].nodeName + " under new elt"); }   
@@ -659,8 +661,12 @@ var sticonlayer = ".sticonlayer { \
     top: 0px; \
     z-index: 201; \
 }";
+
+//  Class for the enclosing DIV or SPAN. We use SPAN because Bing search results
+//  have a mutation observer looking for DIV in the results, apparently to block ad insertion.
 var strating = ".strating { \
     position: relative; \
+    display: block; \
 }";
 var stratingbad = ".stratingbad { \
     position: relative; \
