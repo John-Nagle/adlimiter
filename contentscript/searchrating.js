@@ -670,15 +670,18 @@ var strating = ".strating { \
 }";
 var stratingbad = ".stratingbad { \
     position: relative; \
+    display: block; \
     opacity: .7; \
 }";
 var stratingdebug = ".strating { \
     border-style: dotted; \
     border-width: 1px; \
     position: relative; \
+    display: block; \
 }";
 var stratingbaddebug = ".stratingbad { \
     position: relative; \
+    display: block; \
     border-style: dotted; \
     border-width: 1px; \
     opacity: .7; \
