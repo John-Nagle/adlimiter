@@ -27,7 +27,16 @@ function startcontentscript(patternlist)
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
     }
-    browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
+    function gotoptin(item) {                               // got opt in
+        console.log("Opt-in: " + item);                     // ***TEMP***
+        if (item != true)                                   // must be true
+        {   console.log("Opted out, not running.");
+            notify("Opted out on transmitting data to 'sitetruth.com'. Ad Limiter is disabled.");   // indicate disabled.
+            return;
+        }           
+        browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs
+    }
+    browser.storage.local.get("optIn").then(gotoptin, function() { console.log("No optin yet"); gotoptin(false)}); // if no opt in stored, treat as false
 }
 
 function checkurlchange() {}                                // OBSOLETE - present to avoid modifying other code
