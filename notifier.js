@@ -28,6 +28,7 @@ function notify(message) {
 //
 browser.runtime.onMessage.addListener(notify);                          // connect fn to event
 
+browser.storage.local.set({ "optIn" : false, "optInShown" : false });   // ***TEMP*** clear every time for test
 //  
 //  Opt-in interface. Brings up a popup.
 //

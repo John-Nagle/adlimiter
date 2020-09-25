@@ -28,8 +28,9 @@ function startcontentscript(patternlist)
         startratings(document);                             // then rate
     }
     function gotoptin(item) {                               // got opt in
-        console.log("Opt-in: " + item);                     // ***TEMP***
-        if (item != true)                                   // must be true
+        var optinval = item["optIn"];                       // the value for that key
+        console.log("Opt-in: " + optinval);                 // ***TEMP***
+        if (optinval != true)                               // must be true
         {   console.log("Opted out, not running.");
             notify("Opted out on transmitting data to 'sitetruth.com'. Ad Limiter is disabled.");   // indicate disabled.
             return;
