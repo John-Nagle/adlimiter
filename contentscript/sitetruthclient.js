@@ -27,12 +27,11 @@ function startcontentscript(patternlist)
         loadprefs(item);                                    // load pref data
         startratings(document);                             // then rate
     }
+    //  This is to handle a race condition where the user has not answered the opt-in popup yet.
     function gotoptin(item) {                               // got opt in
         var optinval = item["optIn"];                       // the value for that key
-        console.log("Opt-in: " + optinval);                 // ***TEMP***
         if (optinval != true)                               // must be true
-        {   console.log("Opted out, not running.");
-            notify("Opted out on transmitting data to 'sitetruth.com'. Ad Limiter is disabled.");   // indicate disabled.
+        {   console.log("Opt-in popup decision pending");   // user has opt-in window and search open an the same time, probably. Can't run addon before opt-in.
             return;
         }           
         browser.storage.local.get(KPREFSKEY).then(gotprefs, storageerror);  // first get prefs

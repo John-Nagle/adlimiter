@@ -49,4 +49,4 @@ browser.storage.local.get("optInShown", function(result) {
 });
 
 
-console.log("AdLimiter background loaded.");                            // ***TEMP***
+////console.log("AdLimiter background loaded.");                            // ***TEMP***
