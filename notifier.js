@@ -7,6 +7,7 @@
 //  Configuration
 //
 const NOTIFYINTERVALSECS = 120;                     // minimum interval between notifications
+const POPUPURL = "popup/opt-in.html";               // URL to pop up
 //
 //  notify -- pick up notification msg and display, not too frequently
 //
@@ -34,16 +35,20 @@ browser.storage.local.set({ "optIn" : false, "optInShown" : false });   // ***TE
 //
 browser.runtime.onMessage.addListener(function(message, sender) {
   // check storage for opt in
-  browser.storage.local.get("optIn", function(result) {
-    // send message back to content script with value of opt in
-    browser.tabs.sendMessage(
-      sender.tab.id, { "optIn" : (true == result.optIn)});
-  });
+  browser.storage.local.get("optIn")
+  .then(function(result) { browser.tabs.sendMessage(sender.tab.id, {"optIn" : (true == result.optIn)}); },
+        function(result) { browser.tabs.sendMessage(sender.tab.id, {"optIn" : false});});
+  
+  ////browser.storage.local.get("optIn", function(result) {
+   //// // send message back to content script with value of opt in
+  ////  browser.tabs.sendMessage(
+  ////    sender.tab.id, { "optIn" : (true == result.optIn)});
+  ////  });
 });
 
 function showoptinpopup()
 {
-    browser.tabs.create({ url: "popup/opt-in.html" });
+    browser.tabs.create({ url: POPUPURL });
 }
 
 // show the tab if we haven't registered the user reacting to the prompt.
