@@ -29,7 +29,7 @@ function startcontentscript(patternlist)
     }
     //  This is to handle a race condition where the user has not answered the opt-in popup yet.
     function gotoptin(item) {                               // got opt in
-        var optinval = item["optIn"];                       // the value for that key
+        var optinval = item[OPTINSTORAGE];                  // the value for that key
         if (optinval != true)                               // must be true
         {   console.log("Opt-in popup decision pending");   // user has opt-in window and search open an the same time, probably. Can't run addon before opt-in.
             return;

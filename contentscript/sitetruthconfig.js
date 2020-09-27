@@ -31,6 +31,7 @@ const QUERYTIMEOUTSECS = 10;                        // time our server request a
 const KMAXRETRIES = 24;                             // stop retries after 2 minutes
 
 const KPREFSKEY = "P";								// local storage name for prefs
+const OPTINSTORAGE = "optIn";                       // local storage name for opt-in.
 
 const KDEFAULTPREFS = {                             // default preferences
     verbosepref: false,                             // verbose mode (debugging)

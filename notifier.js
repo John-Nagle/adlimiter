@@ -8,6 +8,7 @@
 //
 const NOTIFYINTERVALSECS = 120;                     // minimum interval between notifications
 const POPUPURL = "popup/opt-in.html";               // URL to pop up
+const OPTINSTORAGE = "optIn";                       // name of opt-in storage tag.
 //
 //  notify -- pick up notification msg and display, not too frequently
 //
@@ -29,21 +30,16 @@ function notify(message) {
 //
 browser.runtime.onMessage.addListener(notify);                          // connect fn to event
 
-browser.storage.local.set({ "optIn" : false, "optInShown" : false });   // ***TEMP*** clear every time for test
+browser.storage.local.set({ OPTINSTORAGE : false, "optInShown" : false });   // ***TEMP*** clear every time for test
 //  
 //  Opt-in interface. Brings up a popup.
 //
 browser.runtime.onMessage.addListener(function(message, sender) {
   // check storage for opt in
-  browser.storage.local.get("optIn")
-  .then(function(result) { browser.tabs.sendMessage(sender.tab.id, {"optIn" : (true == result.optIn)}); },
-        function(result) { browser.tabs.sendMessage(sender.tab.id, {"optIn" : false});});
+  browser.storage.local.get(OPTINSTORAGE)
+  .then(function(result) { browser.tabs.sendMessage(sender.tab.id, {OPTINSTORAGE : (true == result.optIn)}); },
+        function(result) { browser.tabs.sendMessage(sender.tab.id, {OPTINSTORAGE : false});});
   
-  ////browser.storage.local.get("optIn", function(result) {
-   //// // send message back to content script with value of opt in
-  ////  browser.tabs.sendMessage(
-  ////    sender.tab.id, { "optIn" : (true == result.optIn)});
-  ////  });
 });
 
 function showoptinpopup()
