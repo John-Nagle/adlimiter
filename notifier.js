@@ -41,12 +41,14 @@ browser.runtime.onMessage.addListener(function(message, sender) {
   });
 });
 
-// show the tab if we haven't registered the user reacting to the prompt.
-browser.storage.local.get("optInShown", function(result) {
-  if (!result.optInShown) {
+function showoptinpopup()
+{
     browser.tabs.create({ url: "popup/opt-in.html" });
-  }
-});
+}
+
+// show the tab if we haven't registered the user reacting to the prompt.
+browser.storage.local.get("optInShown")
+    .then(function(result) { if (!result.optInShown) { showoptinpopup(); }}, showoptinpopup);
 
 
 ////console.log("AdLimiter background loaded.");                            // ***TEMP***
