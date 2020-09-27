@@ -25,6 +25,6 @@ window.addEventListener("load", function() {
       //    This brings up an alert.
       //    If the user approves the uninstall; we're done and can do nothing further here.
       //    If the user cancels the uninstall, the opt-in prompt is still available for another try..
-      browser.management.uninstallSelf({"showConfirmDialog":true, "dialogMessage": "Remove Ad Limiter add-on?"}).catch(kept);
+      browser.management.uninstallSelf({"showConfirmDialog":true}).catch(kept);
   });
 });
