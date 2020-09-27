@@ -1,7 +1,7 @@
 html, body {
-  width: 20em;
-  padding-left: 0.5em;
-  padding-right: 0.5em;
+	width: 35em;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
 }
 
 strong {
@@ -10,4 +10,18 @@ strong {
 
 button {
   margin: 0.2em 0.2em 0.5em 0;
+}
+.bodytext {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 14pt;
+}
+.popupbox {
+	border: thick ridge #00CCFF;
+	padding: 10pt;
+	background-color: #DBFFFF;
+}
+.dialogbutton {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 18pt;
+	font-weight: bold;
 }
