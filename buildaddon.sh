@@ -1,4 +1,5 @@
 echo "Buld adlimiter addon"
-zip -r -FS adlimiter.zip *.js *.html *.md *.json images contentscript 
+rm adlimiter.zip
+zip -r -FS adlimiter.zip *.js *.html *.md *.json images contentscript popup
 ## mv adlimiter.zip adlimiter.xpi
 
